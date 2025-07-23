@@ -339,7 +339,7 @@ function setupDragAndDrop() {
 
     // Setup für Klausur Drop Area
     setupDropArea(klausurDropArea, klausurInput, 'klausurFileDisplay');
-    
+
     // Setup für Lösung Drop Area
     setupDropArea(loesungDropArea, loesungInput, 'loesungFileDisplay');
 }
@@ -423,14 +423,14 @@ function handleDrop(e, fileInput, displayId) {
 
     if (files.length > 0) {
         const file = files[0];
-        
+
         // Datei-Validierung
         if (validateFile(file)) {
             // DataTransfer für das Input-Element erstellen
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             fileInput.files = dataTransfer.files;
-            
+
             // Datei-Anzeige aktualisieren
             displayFile(file, displayId);
         }
@@ -459,9 +459,9 @@ function handleFileSelect(fileInput, displayId) {
  * @returns {boolean} - True wenn die Datei gültig ist
  */
 function validateFile(file) {
-    const allowedTypes = ['application/pdf', 'application/msword', 
-                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
-                         'text/plain'];
+    const allowedTypes = ['application/pdf', 'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'];
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     if (!allowedTypes.includes(file.type)) {

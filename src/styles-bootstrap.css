@@ -17,7 +17,7 @@
 
 /* Navigation */
 .navbar {
-    background-color: var(--dhbw-blue) !important;
+    background-color: var(--dhbw-dark-red) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -60,16 +60,16 @@ section[id^="semester"] {
 }
 
 .exam-card .card-header {
-    background-color: var(--dhbw-blue) !important;
+    background-color: var(--dhbw-red) !important;
 }
 
 .solution-card .card-header {
-    background-color: #28a745 !important;
+    background-color: var(--dhbw-red) !important;
 }
 
 .upload-container .card-header {
-    background-color: #ffc107 !important;
-    color: #212529 !important;
+    background-color: var(--dhbw-dark-red) !important;
+    color: var(--dhbw-gray) !important;
 }
 
 /* List-Anpassungen */
