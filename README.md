@@ -1,0 +1,393 @@
+# 🎓 DHBW Stuttgart - Altklausuren Archiv Informatik
+
+Ein modernes Web-Archiv für alte Klausuren und Lösungen der DHBW Stuttgart, entwickelt im Rahmen der Prüfungsleistung für Web Engineering.
+
+![DHBW Logo](src/logo%20DHBW.svg)
+
+## 📋 Inhaltsverzeichnis
+
+- [Über das Projekt](#über-das-projekt)
+- [Features](#features)
+- [Technologien](#technologien)
+- [Installation](#installation)
+- [Verwendung](#verwendung)
+- [API-Dokumentation](#api-dokumentation)
+- [Projektstruktur](#projektstruktur)
+- [Konfiguration](#konfiguration)
+- [Entwicklung](#entwicklung)
+- [Deployment](#deployment)
+- [Beitragen](#beitragen)
+- [Lizenz](#lizenz)
+
+## 🎯 Über das Projekt
+
+Das DHBW Altklausuren-Archiv ist eine vollständige Web-Anwendung zur Verwaltung und Bereitstellung von Klausuren und Lösungen für Informatik-Studierende. Die Anwendung bietet eine moderne, responsive Benutzeroberfläche mit Bootstrap und ein sicheres Login-System für das Hochladen neuer Inhalte.
+
+### Ziele
+- Zentrale Sammlung aller Altklausuren nach Semestern
+- Einfacher Zugang zu Lösungen
+- Sichere Upload-Funktionalität für Administratoren
+- Responsive Design für alle Geräte
+- Moderne Web-Technologien
+
+## ✨ Features
+
+### 🔍 **Browsing & Download**
+- **Semester-basierte Navigation**: Klausuren nach Semestern 1-6 organisiert
+- **PDF-Download**: Direkter Download von Klausuren und Lösungen
+- **Responsive Design**: Optimiert für Desktop, Tablet und Mobile
+- **Suchfreundlich**: Übersichtliche Darstellung aller verfügbaren Inhalte
+
+### 🔐 **Authentifizierung & Sicherheit**
+- **Modal-basiertes Login**: Elegante Bootstrap-Modal für Anmeldung
+- **Session-Management**: Sichere Server-Sessions mit Express-Session
+- **Passwort-Hashing**: bcrypt für sichere Passwortspeicherung
+- **Geschützte Routen**: Upload nur für authentifizierte Benutzer
+
+### 📤 **Upload-System**
+- **Drag & Drop Interface**: Moderne Datei-Upload mit Drag-and-Drop
+- **Multi-Format Support**: PDF, DOC, DOCX, TXT-Dateien
+- **Datei-Validierung**: Automatische Überprüfung von Typ und Größe
+- **Live-Vorschau**: Sofortige Anzeige ausgewählter Dateien
+- **Batch-Upload**: Gleichzeitiges Hochladen von Klausur und Lösung
+
+### 🎨 **Benutzeroberfläche**
+- **Bootstrap 5.3.0**: Moderne, responsive UI-Komponenten
+- **Card-basierte Layouts**: Übersichtliche Darstellung von Inhalten
+- **Bootstrap Icons**: Konsistente Iconographie
+- **Animationen**: Sanfte Übergänge und Hover-Effekte
+- **Accessibility**: Barrierefreie Bedienung
+
+## 🛠 Technologien
+
+### Frontend
+- **HTML5** - Semantische Markup-Struktur
+- **CSS3** - Moderne Styling-Features
+- **Bootstrap 5.3.0** - Responsive CSS-Framework
+- **Bootstrap Icons** - Icon-Bibliothek
+- **Vanilla JavaScript** - Client-seitige Logik
+- **Drag & Drop API** - Native Browser-APIs
+
+### Backend
+- **Node.js** - JavaScript-Runtime
+- **Express.js** - Web-Framework
+- **PostgreSQL** - Relationale Datenbank
+- **bcrypt** - Passwort-Hashing
+- **express-session** - Session-Management
+- **multer** - Datei-Upload-Middleware
+- **dotenv** - Umgebungsvariablen
+
+### Development & Deployment
+- **Docker & Docker Compose** - Containerisierung
+- **JSDoc** - API-Dokumentation
+- **Nodemon** - Development-Server
+- **Git** - Versionskontrolle
+
+## 🚀 Installation
+
+### Voraussetzungen
+- Node.js (v16 oder höher)
+- Docker & Docker Compose
+- Git
+
+### Schritt-für-Schritt-Installation
+
+1. **Repository klonen**
+```bash
+git clone https://github.com/Spaculea/web_engineering_semester2.git
+cd web_engineering_semester2
+```
+
+2. **Dependencies installieren**
+```bash
+npm install
+```
+
+3. **Umgebungsvariablen konfigurieren**
+```bash
+# .env Datei ist bereits konfiguriert mit:
+DB_HOST=localhost
+DB_PORT=5400
+DB_USER=postgres
+DB_PASSWORD=sese20022003
+DB_NAME=dhbw_klausuren
+```
+
+4. **Datenbank starten und initialisieren**
+```bash
+npm run db:reset
+```
+
+5. **Admin-Benutzer erstellen**
+```bash
+node create-admin-user.js
+```
+
+6. **Server starten**
+```bash
+npm start
+```
+
+Die Anwendung ist nun unter `http://localhost:3000` verfügbar.
+
+## 💻 Verwendung
+
+### 🌐 **Für Studierende (Öffentlicher Zugang)**
+
+1. **Website besuchen**: `http://localhost:3000`
+2. **Semester auswählen**: Navigation verwenden (1.-6. Semester)
+3. **Klausuren durchsuchen**: Verfügbare Klausuren und Lösungen ansehen
+4. **Download**: Direkt auf gewünschte PDF-Dateien klicken
+
+### 👨‍💼 **Für Administratoren (Upload)**
+
+1. **Login**: Auf "Login" in der Navigation klicken
+   - **Benutzername**: `admin`
+   - **Passwort**: `admin123`
+
+2. **Upload-Bereich**: Nach Login wird Upload-Sektion sichtbar
+
+3. **Datei hochladen**:
+   - **Drag & Drop**: Dateien direkt in gestrichelte Bereiche ziehen
+   - **Klick-Upload**: Auf "Datei auswählen" klicken
+   - **Formular ausfüllen**: Name, Fach, Semester angeben
+   - **Upload**: Button "Hochladen" klicken
+
+4. **Logout**: "Logout" in der Navigation
+
+## 📚 API-Dokumentation
+
+### Authentifizierung
+
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+
+```http
+POST /api/logout
+```
+
+```http
+GET /api/auth/status
+```
+
+### Klausuren & Lösungen
+
+```http
+GET /api/exams/:semester
+# Gibt alle Klausuren für ein Semester zurück
+```
+
+```http
+GET /api/solutions/:semester
+# Gibt alle Lösungen für ein Semester zurück
+```
+
+```http
+GET /klausuren/:id/pdf
+# Download einer Klausur-PDF
+```
+
+```http
+GET /loesungen/:id/pdf
+# Download einer Lösungs-PDF
+```
+
+### Upload (Authentifizierung erforderlich)
+
+```http
+POST /api/upload
+Content-Type: multipart/form-data
+
+# FormData mit:
+# - name: String
+# - fach: String
+# - semester: String
+# - klausur: File
+# - loesung: File (optional)
+```
+
+Vollständige API-Dokumentation: `npm run docs` → `docs/index.html`
+
+## 📁 Projektstruktur
+
+```
+Projekt/
+├── src/                          # Quellcode
+│   ├── homePage.html            # Haupt-HTML-Datei
+│   ├── server.js                # Express-Server
+│   ├── client-side.js           # Frontend-JavaScript
+│   ├── styles.css               # Basis-Styles
+│   ├── styles-bootstrap.css     # Bootstrap-Anpassungen
+│   ├── drag-drop-styles.css     # Drag-Drop-Styles
+│   ├── logo DHBW.svg           # DHBW-Logo
+│   ├── assets/                  # Statische Assets
+│   │   ├── Klausuren/          # PDF-Klausuren
+│   │   └── Loesungen/          # PDF-Lösungen
+│   └── db/                     # Datenbank
+│       └── initialization.js   # DB-Setup-Skript
+├── docs/                       # JSDoc-Dokumentation
+├── docker-compose.yaml         # Docker-Services
+├── Dockerfile                  # Docker-Image
+├── package.json               # Node.js-Konfiguration
+├── jsdoc.json                 # JSDoc-Konfiguration
+├── .env                       # Umgebungsvariablen
+├── init.sql                   # SQL-Schema
+├── create-admin-user.js       # Admin-User-Skript
+├── test-login.js              # Login-Test-Skript
+├── generate-admin.js          # Admin-Generator
+└── README.md                  # Diese Datei
+```
+
+## ⚙️ Konfiguration
+
+### Umgebungsvariablen (.env)
+```env
+# Datenbank
+DB_HOST=localhost
+DB_PORT=5400
+DB_USER=postgres
+DB_PASSWORD=sese20022003
+DB_NAME=dhbw_klausuren
+
+# Server
+PORT=3000
+NODE_ENV=development
+```
+
+### Docker-Services
+- **PostgreSQL**: Port 5400
+- **Node.js App**: Port 3000
+- **Persistent Volume**: `postgres_data`
+
+## 🔧 Entwicklung
+
+### Verfügbare Scripts
+
+```bash
+# Development
+npm run dev              # Startet Server mit Nodemon
+npm start               # Produktions-Server
+
+# Datenbank
+npm run db:start        # PostgreSQL-Container starten
+npm run db:stop         # Container stoppen
+npm run db:reset        # Datenbank zurücksetzen + neu initialisieren
+npm run db:init         # Nur Datenbank initialisieren
+
+# Dokumentation
+npm run docs            # JSDoc generieren
+npm run docs:watch      # JSDoc mit Watch-Mode
+npm run docs:serve      # Docs generieren + HTTP-Server
+
+# Utils
+npm run generate-admin  # Admin-User generieren
+```
+
+### Development-Workflow
+
+1. **Code ändern** in `src/`
+2. **Server automatisch neu starten** (mit `npm run dev`)
+3. **Browser aktualisieren** → `http://localhost:3000`
+4. **Tests laufen lassen**: `node test-login.js`
+5. **Dokumentation aktualisieren**: `npm run docs`
+
+### Database-Schema
+
+```sql
+-- Klausuren-Tabelle
+CREATE TABLE klausuren (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    fach VARCHAR(100) NOT NULL,
+    semester VARCHAR(10) NOT NULL,
+    klausur_pdf BYTEA NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Lösungen-Tabelle
+CREATE TABLE loesungen (
+    id SERIAL PRIMARY KEY,
+    klausur_id INTEGER REFERENCES klausuren(id),
+    loesung_pdf BYTEA NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Benutzer-Tabelle
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+1. **Image erstellen**
+```bash
+docker build -t dhbw-klausuren-archiv .
+```
+
+2. **Mit Docker Compose starten**
+```bash
+docker-compose up -d
+```
+
+### Produktionsserver
+
+1. **Umgebungsvariablen anpassen**
+```bash
+# Produktions-.env
+NODE_ENV=production
+DB_PASSWORD=<sicheres-passwort>
+SESSION_SECRET=<sicherer-schlüssel>
+```
+
+2. **HTTPS konfigurieren** (nginx/Apache)
+3. **Backup-Strategie** für PostgreSQL einrichten
+4. **Monitoring** einrichten (PM2, etc.)
+
+## 🤝 Beitragen
+
+1. **Fork** das Repository
+2. **Feature Branch** erstellen: `git checkout -b feature/AmazingFeature`
+3. **Änderungen committen**: `git commit -m 'Add some AmazingFeature'`
+4. **Branch pushen**: `git push origin feature/AmazingFeature`
+5. **Pull Request** öffnen
+
+### Code-Style
+- **JavaScript**: Standard-Style mit JSDoc-Kommentaren
+- **HTML**: Semantische Tags, Bootstrap-Klassen
+- **CSS**: BEM-Methodology wo möglich
+- **Commits**: Conventional Commits Format
+
+## 📄 Lizenz
+
+Dieses Projekt wurde für die DHBW Stuttgart als Prüfungsleistung entwickelt.
+
+**Autor**: Sergiu Paculea  
+**Studiengang**: Informatik  
+**Semester**: 2. Semester  
+**Fach**: Web Engineering  
+**Jahr**: 2025
+
+---
+
+## 🆘 Support & Kontakt
+
+Bei Fragen oder Problemen:
+
+1. **Issues**: GitHub Issues für Bug-Reports
+2. **Documentation**: JSDoc-Docs unter `/docs`
+3. **Code-Review**: Pull Requests willkommen
+
+---
