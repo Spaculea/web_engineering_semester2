@@ -1,0 +1,303 @@
+/**
+ * @fileoverview Dieses Skript importiert alte Klausuren und Lösungen in eine PostgreSQL-Datenbank.
+ * Es stellt sicher, dass die Datenbank bereit ist, bevor die Importe gestartet werden.
+ * Es liest PDF-Dateien aus den angegebenen Verzeichnissen, extrahiert relevante Informationen aus den Dateinamen
+ * und fügt die Daten in die entsprechenden Tabellen ein.
+ * @author Sergiu Paculea
+ */
+/**
+ * @namespace dbInitialization
+ * @description Dieses Modul enthält Funktionen zum Importieren von Klausuren und Lösungen in die Datenbank
+ * und zum Warten auf die Datenbankverbindung.
+ * Es verwendet die PostgreSQL-Bibliothek 'pg' und die Node.js-Dateisystem- und Pfadmodule.
+ */
+const fs = require('fs');
+const path = require('path');
+const { Pool } = require('pg');
+
+// Lade Umgebungsvariablen
+require('dotenv').config();
+
+/**
+ * Datenbankkonfiguration
+ * @typedef {Object} DatabaseConfig - Konfiguration für die PostgreSQL-Datenbankverbindung
+ * @property {string} user - Der Benutzername für die Datenbankverbindung
+ * @property {string} host - Der Hostname der Datenbank
+ * @property {string} database - Der Name der Datenbank
+ * @property {string} password - Das Passwort für die Datenbankverbindung
+ * @property {number} port - Der Port für die Datenbankverbindung
+ */
+
+/**
+ * Gemeinsame Konfiguration für die PostgreSQL-Datenbankverbindung.
+ * Diese Konfiguration wird für die Verbindung zur Datenbank verwendet, um Klausuren und Lösungen zu importieren.
+ * @type {databaseConfig}
+ */
+const dbConfig = {
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'dhbw_klausuren',
+    password: process.env.DB_PASSWORD || 'sese20022003',
+    port: parseInt(process.env.DB_PORT, 10) || 5400
+};
+
+/**
+ * Maximale Anzahl an Versuchen, um eine Verbindung zur Datenbank herzustellen.
+ * @constant {number}
+ * @default 5
+ * @memberOf dbInitialization
+ */
+const MAX_RETRIES = 5;
+
+/**
+ * Verzögerung in Millisekunden, bevor ein erneuter Verbindungsversuch unternommen wird.
+ * @constant {number}
+ * @default 1000
+ * @memberOf dbInitialization
+ */
+const RETRY_DELAY = 1000; // 1 Sekunde
+
+// Verzeichnisse
+const klausurenDirectory = './src/assets/Klausuren';
+const loesungenDirectory = './src/assets/Loesungen';
+
+/**
+ * @async
+ * @function waitForDatabase
+ * @memberof dbInitialization
+ * @description Funktion, die versucht, eine Verbindung zur Datenbank herzustellen.
+ * Sie wird mehrmals wiederholt, bis die Datenbank bereit ist oder die maximale Anzahl an
+ * Versuchen erreicht ist.
+ * @param {number} retries - Anzahl der verbleibenden Versuche, die Verbindung herzustellen.
+ * @returns {Promise<boolean>} - Gibt true zurück, wenn die Verbindung erfolgreich war, andernfalls false.
+ */
+async function waitForDatabase(retries = MAX_RETRIES) {
+    const pool = new Pool(dbConfig);
+
+    try {
+        console.log('Versuch, Verbindung zur Datenbank herzustellen...');
+        const client = await pool.connect();
+        console.log('✅ Datenbankverbindung erfolgreich');
+        client.release();
+        return true;
+    } catch (error) {
+        await pool.end().catch(() => { });
+
+        if (retries <= 0) {
+            console.error('❌ Datenbankverbindung fehlgeschlagen nach mehreren Versuchen:', error);
+            return false;
+        }
+
+        console.log(`⏳ Datenbank noch nicht bereit. Warte ${RETRY_DELAY / 1000} Sekunden... (${retries} Versuche übrig)`);
+
+        // Warten vor dem nächsten Versuch
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+
+        // Wiederhole mit einem Versuch weniger
+        return waitForDatabase(retries - 1);
+    }
+}
+
+/**
+ * Klausur-Objekt Struktur
+ * @typedef {Object} Klausur
+ * @property {number} id - Die eindeutige ID der Klausur in der Datenbank.
+ * @property {string} name - Der Name der Klausur.
+ * @property {string} fach - Das Fach, zu dem die Klausur gehört.
+ * @property {string} semester - Das Semester, in dem die Klausur geschrieben wurde.
+ * @property {Buffer} klausur_pdf - Die PDF-Datei der Klausur als Buffer.
+ * @property {Date} created_at - Das Erstellungsdatum der Klausur in der Datenbank.
+ */
+
+/**
+ * @async
+ * @function importAltklausuren
+ * @memberof dbInitialization
+ * @description Importiert alte Klausuren in die Datenbank.
+ * Prüft, ob das Verzeichnis existiert und ob bereits genügend Einträge in der Datenbank vorhanden sind.
+ * Liest die PDF-Dateien aus dem Verzeichnis, extrahiert die relevanten Informationen aus den Dateinamen
+ * und fügt die Daten in die Tabelle "klausuren" ein. 
+ * @returns {Promise<void>} Es gibt keinen Rückgabewert, aber es gibt Konsolenausgaben für den Fortschritt und Fehler.
+ */
+
+async function importAltklausuren() {
+    const pool = new Pool(dbConfig);
+
+    try {
+        // Check if database already has content
+        const result = await pool.query('SELECT COUNT(*) FROM klausuren');
+        const count = parseInt(result.rows[0].count);
+
+        // Prüfen ob Verzeichnis existiert
+        if (!fs.existsSync(klausurenDirectory)) {
+            console.error(`PDF-Verzeichnis existiert nicht: ${klausurenDirectory}`);
+            return;
+        }
+
+        const files = fs.readdirSync(klausurenDirectory).filter(file => file.endsWith('.pdf'));
+
+        // Check for existing PDF files
+        if (files.length === 0) {
+            console.log('Keine PDF-Dateien gefunden. Import wird übersprungen.');
+            return;
+        }
+
+        // Check if the database already has enough entries
+        if (count >= files.length) {
+            console.log(`Datenbank enthält bereits ${count} Klausuren. Import wird übersprungen.`);
+            return;
+        }
+
+        console.log(`${files.length} PDF-Dateien zum Importieren gefunden`);
+
+        for (const file of files) {
+            try {
+                // Extract information from filename
+                const parts = path.basename(file, '.pdf').split('_');
+                const fach = parts[0];
+                const semester = parts[1].replace('Semester', '');
+                const name = parts[2];
+
+                // Read PDF file
+                const pdfData = fs.readFileSync(path.join(klausurenDirectory, file));
+
+                // Insert into database
+                await pool.query(
+                    'INSERT INTO klausuren (name, fach, semester, klausur_pdf) VALUES ($1, $2, $3, $4)',
+                    [name, fach, semester, pdfData]
+                );
+
+                console.log(`Importiert: ${file}`);
+            } catch (err) {
+                console.error(`Fehler beim Importieren von ${file}:`, err);
+            }
+        }
+
+        console.log('✅ Import der Klausuren abgeschlossen');
+    } catch (error) {
+        console.error('Fehler beim Klausurenimport:', error);
+    } finally {
+        await pool.end().catch(err => console.error('Fehler beim Schließen des Pools:', err));
+    }
+}
+
+/**
+ * Lösungs-Objekt Struktur
+ * @typedef {Object} Loesung
+ * @property {number} id - Eindeutige ID der Lösung
+ * @property {number} klausur_id - Verweis auf die zugehörige Klausur
+ * @property {Buffer} loesung_pdf - PDF-Datei als Binärdaten
+ * @property {Date} created_at - Erstellungsdatum
+ */
+
+/**
+ * @async
+ * @function importLoesungen
+ * @memberof dbInitialization
+ * @description Importiert alte Lösungen in die Datenbank.
+ * @returns {Promise<void>} Es gibt keinen Rückgabewert, aber es gibt Konsolenausgaben für den Fortschritt und Fehler.
+ */
+async function importLoesungen() {
+    const pool = new Pool(dbConfig);
+
+    try {
+        // Check if database already has content
+        const result = await pool.query('SELECT COUNT(*) FROM loesungen');
+        const count = parseInt(result.rows[0].count);
+
+        // Prüfen ob Verzeichnis existiert
+        if (!fs.existsSync(loesungenDirectory)) {
+            console.error(`PDF-Verzeichnis existiert nicht: ${loesungenDirectory}`);
+            return;
+        }
+
+        // Initialize the database if empty
+        const files = fs.readdirSync(loesungenDirectory).filter(file => file.endsWith('.pdf'));
+
+        console.log(`${files.length} Lösungs-PDFs zum Importieren gefunden`);
+
+        if (files.length === 0) {
+            console.log('Keine PDF-Dateien gefunden. Import wird übersprungen.');
+            return;
+        }
+
+        if (count >= files.length) {
+            console.log(`Datenbank enthält bereits ${count} Lösungen. Import wird übersprungen.`);
+            return;
+        }
+
+        for (const file of files) {
+            try {
+                // Extract information from filename
+                const parts = path.basename(file, '.pdf').split('_');
+                const fach = parts[0];
+                const semester = parts[1].replace('Semester', '');
+                const name = parts[2];
+
+                // WICHTIG: Finde die zugehörige Klausur basierend auf Name und Fach
+                const klausurResult = await pool.query(
+                    'SELECT id FROM klausuren WHERE name = $1 AND fach = $2 AND semester = $3',
+                    [name, fach, semester]
+                );
+
+                if (klausurResult.rows.length === 0) {
+                    console.warn(`Keine passende Klausur gefunden für: ${file}`);
+                    continue;
+                }
+
+                const klausur_id = klausurResult.rows[0].id;
+
+                // Insert into database with the correct klausur_id
+                // Read PDF file
+                const pdfData = fs.readFileSync(path.join(loesungenDirectory, file));
+
+                // Insert into database with the correct klausur_id and PDF data
+                await pool.query(
+                    'INSERT INTO loesungen (klausur_id, loesung_pdf) VALUES ($1, $2)',
+                    [klausur_id, pdfData]
+                );
+
+                console.log(`Importiert: ${file} (verknüpft mit Klausur-ID: ${klausur_id})`);
+            } catch (err) {
+                console.error(`Fehler beim Importieren von ${file}:`, err);
+            }
+        }
+
+        console.log('✅ Import der Lösungen abgeschlossen');
+    } catch (error) {
+        console.error('Fehler beim Lösungsimport:', error);
+    } finally {
+        await pool.end().catch(err => console.error('Fehler beim Schließen der Datenbankverbindung:', err));
+    }
+}
+
+/**
+ * Hauptfunktion zur Ausführung der Importe.
+ * @async
+ * @function runImports
+ * @memberof dbInitialization
+ * @description Führt die Importe für Klausuren und Lösungen aus. Die Function wartet zuerst darauf, dass die Datenbank bereit ist.
+ * Die Importe werden nacheinander ausgeführt, und es gibt Konsolenausgaben für den Fortschritt.
+ * @returns {Promise<void>} Es gibt keinen Rückgabewert, aber es gibt Konsolenausgaben für den Fortschritt und Fehler.
+ * @throws {Error} Gibt einen Fehler zurück, wenn die Datenbank nicht bereit ist oder ein Import fehlschlägt.
+ */
+async function runImports() {
+    console.log('🚀 Starte Datenbankimporte...');
+
+    // Warte zuerst auf die Datenbank
+    const dbReady = await waitForDatabase();
+    if (!dbReady) {
+        console.error('❌ Datenbank ist nicht bereit. Abbruch des Imports.');
+        return;
+    }
+
+    await importAltklausuren();
+    await importLoesungen();
+    console.log('✅ Alle Importe abgeschlossen');
+}
+
+// Starte den Import
+runImports().catch(error => {
+    console.error('❌ Kritischer Fehler bei Datenbankimporte:', error);
+    process.exit(1);
+});

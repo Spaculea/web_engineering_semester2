@@ -1,0 +1,20 @@
+{
+  // General editor settings
+  "editor.formatOnSave": true,
+  "eslint.validate": ["javascript"],
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "node_modules": true
+  },
+  // Settings for Node.js development
+  "javascript.suggest.autoImports": true,
+  "debug.javascript.autoAttachFilter": "smart",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  }
+}

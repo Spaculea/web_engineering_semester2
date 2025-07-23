@@ -1,0 +1,31 @@
+{
+  "source": {
+    "include": [
+      "./src/",
+      "./README.md"
+    ],
+    "includePattern": "\\.(js|jsx)$",
+    "exclude": [
+      "node_modules/",
+      "src/assets/"
+    ]
+  },
+  "opts": {
+    "destination": "./docs/",
+    "readme": "./README.md",
+    "recurse": true
+  },
+  "plugins": [
+    "plugins/markdown",
+    "jsdoc-memberof-namespace",
+    "jsdoc-route-plugin"
+  ],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  },
+  "metadata": {
+    "title": "DHBW Klausuren-Archiv API Dokumentation",
+    "description": "Vollständige API-Dokumentation für das Klausuren-Archiv System"
+  }
+}
