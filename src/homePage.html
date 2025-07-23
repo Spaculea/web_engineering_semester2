@@ -12,6 +12,7 @@
         <!-- Bootstrap Icons -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
         <link rel="stylesheet" href="styles-bootstrap.css">
+        <link rel="stylesheet" href="drag-drop-styles.css">
         <script src="client-side.js"></script>
     </head>
 
@@ -286,22 +287,37 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="klausurInput" class="form-label">Altklausur auswählen:</label>
-                                        <div class="drop-area border border-2 border-dashed rounded p-4 text-center"
+                                        <div class="drop-area border border-2 border-dashed rounded p-4 text-center position-relative"
                                             id="klausurDropArea">
-                                            <p class="mb-2">Datei hier ablegen oder</p>
-                                            <input type="file" class="form-control" id="klausurInput" name="klausur"
+                                            <div class="drop-content">
+                                                <i class="bi bi-cloud-upload-fill fs-1 text-muted mb-3"></i>
+                                                <h5 class="text-muted">Datei hier ablegen</h5>
+                                                <p class="text-muted mb-3">oder klicken zum Auswählen</p>
+                                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('klausurInput').click()">
+                                                    <i class="bi bi-folder2-open"></i> Datei auswählen
+                                                </button>
+                                            </div>
+                                            <input type="file" class="form-control d-none" id="klausurInput" name="klausur"
                                                 accept=".pdf,.doc,.docx,.txt" required>
                                         </div>
-                                        <div id="fileNameDisplay" class="mt-2"></div>
+                                        <div id="klausurFileDisplay" class="mt-2"></div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="loesungInput" class="form-label">Lösung (optional):</label>
-                                        <div class="drop-area border border-2 border-dashed rounded p-4 text-center"
+                                        <div class="drop-area border border-2 border-dashed rounded p-4 text-center position-relative"
                                             id="loesungDropArea">
-                                            <p class="mb-2">Datei hier ablegen oder</p>
-                                            <input type="file" class="form-control" id="loesungInput" name="loesung"
+                                            <div class="drop-content">
+                                                <i class="bi bi-file-earmark-check-fill fs-1 text-muted mb-3"></i>
+                                                <h5 class="text-muted">Lösungsdatei hier ablegen</h5>
+                                                <p class="text-muted mb-3">oder klicken zum Auswählen</p>
+                                                <button type="button" class="btn btn-outline-success" onclick="document.getElementById('loesungInput').click()">
+                                                    <i class="bi bi-folder2-open"></i> Lösung auswählen
+                                                </button>
+                                            </div>
+                                            <input type="file" class="form-control d-none" id="loesungInput" name="loesung"
                                                 accept=".pdf,.doc,.docx,.txt">
                                         </div>
+                                        <div id="loesungFileDisplay" class="mt-2"></div>
                                     </div>
                                     <div class="d-grid">
                                         <button type="submit" class="btn btn-success btn-lg">Hochladen</button>

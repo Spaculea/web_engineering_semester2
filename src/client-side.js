@@ -326,6 +326,231 @@ async function uploadExamAndSolution() {
     });
 }
 
+/**
+ * @function setupDragAndDrop
+ * @memberof ClientSideFunctions
+ * @description Initialisiert die Drag-and-Drop-Funktionalität für Datei-Upload
+ */
+function setupDragAndDrop() {
+    const klausurDropArea = document.getElementById('klausurDropArea');
+    const loesungDropArea = document.getElementById('loesungDropArea');
+    const klausurInput = document.getElementById('klausurInput');
+    const loesungInput = document.getElementById('loesungInput');
+
+    // Setup für Klausur Drop Area
+    setupDropArea(klausurDropArea, klausurInput, 'klausurFileDisplay');
+    
+    // Setup für Lösung Drop Area
+    setupDropArea(loesungDropArea, loesungInput, 'loesungFileDisplay');
+}
+
+/**
+ * @function setupDropArea
+ * @memberof ClientSideFunctions
+ * @description Richtet eine Drop-Area für eine bestimmte Datei-Input ein
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ * @param {HTMLInputElement} fileInput - Das zugehörige File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function setupDropArea(dropArea, fileInput, displayId) {
+    // Drag Events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight Drop Area
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => highlight(dropArea), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => unhighlight(dropArea), false);
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener('drop', (e) => handleDrop(e, fileInput, displayId), false);
+
+    // Handle file input change
+    fileInput.addEventListener('change', () => handleFileSelect(fileInput, displayId));
+
+    // Click to select file
+    dropArea.addEventListener('click', () => fileInput.click());
+}
+
+/**
+ * @function preventDefaults
+ * @memberof ClientSideFunctions
+ * @description Verhindert Standard-Browser-Verhalten für Drag-Events
+ * @param {Event} e - Das Event
+ */
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+/**
+ * @function highlight
+ * @memberof ClientSideFunctions
+ * @description Hebt die Drop-Area hervor
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ */
+function highlight(dropArea) {
+    dropArea.classList.add('drag-over');
+}
+
+/**
+ * @function unhighlight
+ * @memberof ClientSideFunctions
+ * @description Entfernt die Hervorhebung der Drop-Area
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ */
+function unhighlight(dropArea) {
+    dropArea.classList.remove('drag-over');
+}
+
+/**
+ * @function handleDrop
+ * @memberof ClientSideFunctions
+ * @description Verarbeitet abgelegte Dateien
+ * @param {DragEvent} e - Das Drop-Event
+ * @param {HTMLInputElement} fileInput - Das zugehörige File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function handleDrop(e, fileInput, displayId) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+        const file = files[0];
+        
+        // Datei-Validierung
+        if (validateFile(file)) {
+            // DataTransfer für das Input-Element erstellen
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            // Datei-Anzeige aktualisieren
+            displayFile(file, displayId);
+        }
+    }
+}
+
+/**
+ * @function handleFileSelect
+ * @memberof ClientSideFunctions
+ * @description Verarbeitet ausgewählte Dateien über Input-Element
+ * @param {HTMLInputElement} fileInput - Das File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function handleFileSelect(fileInput, displayId) {
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        displayFile(file, displayId);
+    }
+}
+
+/**
+ * @function validateFile
+ * @memberof ClientSideFunctions
+ * @description Validiert eine Datei
+ * @param {File} file - Die zu validierende Datei
+ * @returns {boolean} - True wenn die Datei gültig ist
+ */
+function validateFile(file) {
+    const allowedTypes = ['application/pdf', 'application/msword', 
+                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+                         'text/plain'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (!allowedTypes.includes(file.type)) {
+        alert('Nur PDF-, DOC-, DOCX- und TXT-Dateien sind erlaubt.');
+        return false;
+    }
+
+    if (file.size > maxSize) {
+        alert('Die Datei ist zu groß. Maximale Größe: 10MB.');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @function displayFile
+ * @memberof ClientSideFunctions
+ * @description Zeigt die ausgewählte Datei an
+ * @param {File} file - Die anzuzeigende Datei
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function displayFile(file, displayId) {
+    const displayElement = document.getElementById(displayId);
+    const fileSize = formatFileSize(file.size);
+    const fileName = file.name;
+    const fileIcon = getFileIcon(file.type, fileName);
+
+    displayElement.innerHTML = `
+        <div class="file-display">
+            <div class="file-info">
+                <i class="${fileIcon}"></i>
+                <span class="file-name">${fileName}</span>
+                <span class="file-size">(${fileSize})</span>
+            </div>
+            <button type="button" class="remove-file" onclick="removeFile('${displayId}', '${displayId.replace('FileDisplay', 'Input')}')">
+                <i class="bi bi-x-circle-fill"></i>
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * @function getFileIcon
+ * @memberof ClientSideFunctions
+ * @description Gibt das passende Icon für den Dateityp zurück
+ * @param {string} fileType - MIME-Type der Datei
+ * @param {string} fileName - Name der Datei
+ * @returns {string} - CSS-Klassen für das Icon
+ */
+function getFileIcon(fileType, fileName) {
+    if (fileType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
+        return 'bi bi-file-earmark-pdf-fill text-danger';
+    } else if (fileType.includes('word') || fileName.toLowerCase().endsWith('.doc') || fileName.toLowerCase().endsWith('.docx')) {
+        return 'bi bi-file-earmark-word-fill text-primary';
+    } else if (fileType === 'text/plain' || fileName.toLowerCase().endsWith('.txt')) {
+        return 'bi bi-file-earmark-text-fill text-secondary';
+    } else {
+        return 'bi bi-file-earmark-fill text-info';
+    }
+}
+
+/**
+ * @function formatFileSize
+ * @memberof ClientSideFunctions
+ * @description Formatiert Dateigröße in lesbares Format
+ * @param {number} bytes - Dateigröße in Bytes
+ * @returns {string} - Formatierte Dateigröße
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * @function removeFile
+ * @memberof ClientSideFunctions
+ * @description Entfernt eine ausgewählte Datei
+ * @param {string} displayId - ID des Display-Elements
+ * @param {string} inputId - ID des Input-Elements
+ */
+function removeFile(displayId, inputId) {
+    document.getElementById(displayId).innerHTML = '';
+    document.getElementById(inputId).value = '';
+}
+
 // Event listener für DOMContentLoaded
 // Lädt alle Klausuren und Lösungen, wenn die Seite geladen wird
 document.addEventListener('DOMContentLoaded', () => {
@@ -334,4 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadExamAndSolution();
     checkAuthStatus();
     setupLoginSystem();
+    setupDragAndDrop();
 });
+
+// Globale Funktionen für HTML onclick
+window.removeFile = removeFile;
