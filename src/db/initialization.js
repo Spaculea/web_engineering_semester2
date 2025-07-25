@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
 
 // Lade Umgebungsvariablen
 require('dotenv').config();
@@ -37,7 +38,7 @@ const dbConfig = {
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'localhost',
     database: process.env.DB_NAME || 'dhbw_klausuren',
-    password: process.env.DB_PASSWORD || 'sese20022003',
+    password: process.env.DB_PASSWORD || 'postgrePassword',
     port: parseInt(process.env.DB_PORT, 10) || 5400
 };
 
@@ -272,6 +273,84 @@ async function importLoesungen() {
 }
 
 /**
+ * @async
+ * @function createAdminUser
+ * @memberof dbInitialization
+ * @description Erstellt einen Admin-Benutzer in der Datenbank, falls noch keiner existiert.
+ * @returns {Promise<void>} Es gibt keinen Rückgabewert, aber es gibt Konsolenausgaben für den Fortschritt und Fehler.
+ */
+async function createAdminUser() {
+    const pool = new Pool(dbConfig);
+
+    try {
+        const username = 'admin';
+        const password = 'admin123';
+
+        // Überprüfe, ob bereits ein Admin-Benutzer existiert
+        const existingUser = await pool.query(
+            'SELECT id FROM users WHERE username = $1',
+            [username]
+        );
+
+        if (existingUser.rows.length > 0) {
+            console.log(`✅ Admin-Benutzer '${username}' existiert bereits (ID: ${existingUser.rows[0].id})`);
+            return;
+        }
+
+        // Erstelle Hash für das Passwort
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(password, saltRounds);
+
+        console.log(`🔐 Erstelle Admin-Benutzer...`);
+        console.log(`👤 Username: ${username}`);
+        console.log(`🔑 Password: ${password}`);
+
+        // Füge neuen Admin-Benutzer ein
+        const result = await pool.query(
+            'INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id',
+            [username, passwordHash]
+        );
+
+        console.log(`✅ Admin-Benutzer erfolgreich erstellt mit ID: ${result.rows[0].id}`);
+
+        // Überprüfe die Erstellung
+        const checkResult = await pool.query(
+            'SELECT id, username, LENGTH(password_hash) as hash_length FROM users WHERE username = $1',
+            [username]
+        );
+
+        console.log(`✅ Überprüfung: User ID ${checkResult.rows[0].id}, Hash-Länge: ${checkResult.rows[0].hash_length}`);
+
+    } catch (error) {
+        console.error('❌ Fehler beim Erstellen des Admin-Benutzers:', error);
+    } finally {
+        await pool.end().catch(err => console.error('Fehler beim Schließen der Datenbankverbindung:', err));
+    }
+}
+
+/**
+ * @async
+ * @function generateAdminHash
+ * @memberof dbInitialization
+ * @description Generiert einen Passwort-Hash für den Admin-Benutzer (Hilfsfunktion für Debugging).
+ * @returns {Promise<string>} Der generierte Passwort-Hash
+ */
+async function generateAdminHash() {
+    const password = 'admin123';
+    const hash = await bcrypt.hash(password, 10);
+
+    console.log('📋 Admin-Benutzer Informationen:');
+    console.log('Username: admin');
+    console.log('Password: admin123');
+    console.log('Hash:', hash);
+    console.log('');
+    console.log('SQL-Befehl zum manuellen Einfügen:');
+    console.log(`INSERT INTO users (username, password_hash) VALUES ('admin', '${hash}') ON CONFLICT (username) DO NOTHING;`);
+
+    return hash;
+}
+
+/**
  * Hauptfunktion zur Ausführung der Importe.
  * @async
  * @function runImports
@@ -291,9 +370,17 @@ async function runImports() {
         return;
     }
 
+    // Führe alle Importe nacheinander aus
     await importAltklausuren();
     await importLoesungen();
-    console.log('✅ Alle Importe abgeschlossen');
+    await createAdminUser();
+
+    console.log('✅ Alle Importe und Setup-Schritte abgeschlossen');
+    console.log('');
+    console.log('🎯 System bereit! Login-Daten:');
+    console.log('   URL: http://localhost:3000');
+    console.log('   Username: admin');
+    console.log('   Password: admin123');
 }
 
 // Starte den Import

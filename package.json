@@ -12,8 +12,7 @@
         "db:init": "node src/db/initialization.js",
         "docs": "jsdoc -c jsdoc.json",
         "docs:watch": "jsdoc -c jsdoc.json --watch",
-        "docs:serve": "npm run docs && cd docs && python -m http.server 8080",
-        "generate-admin": "node generate-admin.js"
+        "docs:serve": "npm run docs && cd docs && python -m http.server 8080"
     },
     "dependencies": {
         "@nestjs/common": "^11.1.3",

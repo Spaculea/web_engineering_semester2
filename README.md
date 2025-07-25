@@ -109,26 +109,27 @@ npm install
 DB_HOST=localhost
 DB_PORT=5400
 DB_USER=postgres
-DB_PASSWORD=sese20022003
+DB_PASSWORD=postgrePassword
 DB_NAME=dhbw_klausuren
 ```
 
-4. **Datenbank starten und initialisieren**
+4. **Datenbank starten und initialisieren (mit Admin-Benutzer)**
 ```bash
 npm run db:reset
 ```
 
-5. **Admin-Benutzer erstellen**
-```bash
-node create-admin-user.js
-```
-
-6. **Server starten**
+5. **Server starten**
 ```bash
 npm start
 ```
 
 Die Anwendung ist nun unter `http://localhost:3000` verfügbar.
+
+**Login-Daten:**
+- **Benutzername**: `admin`
+- **Passwort**: `admin123`
+
+> **Hinweis**: Der Admin-Benutzer wird automatisch bei `npm run db:reset` oder `npm run db:init` erstellt.
 
 ## 💻 Verwendung
 
@@ -253,7 +254,7 @@ Projekt/
 DB_HOST=localhost
 DB_PORT=5400
 DB_USER=postgres
-DB_PASSWORD=sese20022003
+DB_PASSWORD=postgrePassword
 DB_NAME=dhbw_klausuren
 
 # Server
@@ -278,8 +279,8 @@ npm start               # Produktions-Server
 # Datenbank
 npm run db:start        # PostgreSQL-Container starten
 npm run db:stop         # Container stoppen
-npm run db:reset        # Datenbank zurücksetzen + neu initialisieren
-npm run db:init         # Nur Datenbank initialisieren
+npm run db:reset        # Datenbank zurücksetzen + neu initialisieren + Admin erstellen
+npm run db:init         # Nur Datenbank initialisieren + Admin erstellen
 
 # Dokumentation
 npm run docs            # JSDoc generieren
@@ -287,7 +288,8 @@ npm run docs:watch      # JSDoc mit Watch-Mode
 npm run docs:serve      # Docs generieren + HTTP-Server
 
 # Utils
-npm run generate-admin  # Admin-User generieren
+npm run generate-admin  # Admin-Hash generieren (nur anzeigen)
+npm run create-admin    # Admin-User in bestehende DB einfügen
 ```
 
 ### Development-Workflow

@@ -28,7 +28,7 @@ async function checkAuthStatus() {
 
         updateUIForAuthStatus();
     } catch (error) {
-        console.error('Fehler beim Überprüfen des Auth-Status:', error);
+        console.error('❌ Fehler beim Überprüfen des Auth-Status:', error);
     }
 }
 
