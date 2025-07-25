@@ -102,7 +102,6 @@ async function startServer() {
 
 /** 
  * Stellt die Homepage bereit, die das Frontend der Anwendung enthält.
- * @route GET /
  */
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "homePage.html"));
@@ -282,7 +281,6 @@ function requireAuth(req, res, next) {
 }
 
 /** Login-Route 
- * @route POST /api/login
  * @function  
  * @memberof ServerSideFunctions
  * @description Authentifiziert einen Benutzer anhand von Benutzernamen und Passwort.
@@ -341,7 +339,6 @@ app.post('/api/logout', (req, res) => {
 });
 
 /** Authentifizierungsstatus abfragen   
- * @route GET /api/auth/status
  * @function
  * @memberof ServerSideFunctions
  * @description Überprüft, ob der Benutzer angemeldet ist.

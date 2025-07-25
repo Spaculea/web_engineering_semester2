@@ -35,6 +35,8 @@
  * @description Enthält Funktionen zum Starten des Servers, Testen der Datenbankverbindung
  */
 const express = require("express");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
 const { Pool } = require("pg");
 const multer = require("multer");
 const path = require("path");
@@ -47,16 +49,32 @@ const upload = multer({
 const app = express();
 const port = 3000;
 
+// Session-Middleware
+app.use(session({
+  secret: 'dhbw-altklausuren-secret-key-2025', // Sicherer Schlüssel
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Bei HTTPS auf true setzen
+    maxAge: 24 * 60 * 60 * 1000 // 24 Stunden
+  }
+}));
+
+// Middleware für JSON-Parsing
+app.use(express.json());
+
 // Server statische Dateien bereitstellen
 app.use(express.static(path.join(__dirname)));
 
+require('dotenv').config(); // Lädt Umgebungsvariablen aus .env Datei
+
 // PostgreSQL-Verbindung
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "dhbw_klausuren",
-  password: "password",
-  port: 5400,
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'dhbw_klausuren',
+  password: process.env.DB_PASSWORD || 'sese20022003',
+  port: parseInt(process.env.DB_PORT, 10) || 5400,
 });
 
 /**
@@ -103,6 +121,7 @@ async function startServer() {
 
   app.listen(port, () => {
     console.log(`✅ Server läuft auf http://localhost:${port}`);
+    console.log(`✅ Umgebungsvariablen geladen: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
     if (!dbConnected) {
       console.log('⚠️  Server started but database is not available');
     }
@@ -168,7 +187,7 @@ app.get("/api/solutions/:semester", async (req, res) => {
  * @description Gibt das PDF-Dokument einer Klausur zurück.
  * @param {string} id - Die ID der Klausur, deren PDF abgerufen werden soll.
  * @returns {Buffer} - Das PDF-Dokument der Klausur.  
-*/ 
+*/
 app.get("/klausuren/:id/pdf", async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -225,7 +244,7 @@ app.get("/loesungen/:id/pdf", async (req, res) => {
  * @returns {Object} - Ein Objekt mit einer Erfolgsmeldung und den IDs der gespeicherten Klausur und Lösung.
  * @throws {Error} - Gibt einen Fehler zurück, wenn die Validierung fehlschlägt oder ein Fehler beim Speichern in der Datenbank auftritt.
  */
-app.post("/api/upload", upload.fields([
+app.post("/api/upload", requireAuth, upload.fields([
   { name: "klausur", maxCount: 1 },
   { name: "loesung", maxCount: 1 }
 ]), async (req, res) => {
@@ -282,16 +301,105 @@ app.post("/api/upload", upload.fields([
   }
 });
 
-/**
- * @async
- * @function startServer
+// Middleware für geschützte Routen
+function requireAuth(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: 'Authentifizierung erforderlich' });
+  }
+  next();
+}
+
+/** Login-Route 
+ * @route POST /api/login
+ * @function  
  * @memberof ServerSideFunctions
- * @description Startet den Express-Server und testet die Datenbankverbindung.
- * Wenn die Verbindung fehlschlägt, wird eine Warnung ausgegeben,
- * @returns {Promise&lt;void>} Die Funktion gibt ein Promise zurück, das aufgelöst wird, wenn der Server gestartet ist.
- * @throws {Error} Gibt einen Fehler zurück, wenn die Datenbankverbindung fehlschlägt oder der Server nicht gestartet werden kann.
- */
-startServer();</code></pre>
+ * @description Authentifiziert einen Benutzer anhand von Benutzernamen und Passwort.
+*/
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Benutzername und Passwort sind erforderlich' });
+    }
+
+    // Benutzer aus Datenbank laden
+    const result = await pool.query(
+      'SELECT id, username, password_hash FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: 'Ungültiger Benutzername oder Passwort' });
+    }
+
+    const user = result.rows[0];
+
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Ungültiger Benutzername oder Passwort' });
+    }
+
+    // Authentifizierung erfolgreich
+    req.session.userId = user.id;
+    req.session.username = user.username;
+
+    res.json({
+      success: true,
+      message: 'Login erfolgreich',
+      userId: user.id,
+      username: user.username
+    });
+
+  } catch (error) {
+    console.error('Fehler beim Login:', error);
+    res.status(500).json({ message: 'Serverfehler' });
+  }
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Logout-Fehler:', err);
+      return res.status(500).json({ message: 'Serverfehler' });
+    }
+    res.json({ success: true, message: 'Logout erfolgreich' });
+  });
+});
+
+/** Authentifizierungsstatus abfragen   
+ * @route GET /api/auth/status
+ * @function
+ * @memberof ServerSideFunctions
+ * @description Überprüft, ob der Benutzer angemeldet ist.
+ * @param {Object} req - Die Anfrage, die die Session-Informationen enthält.
+ * @param {Object} res - Die Antwort, die den Authentifizierungsstatus zurückgibt.
+ * @returns {Object} - Ein Objekt, das den Authentifizierungsstatus und den Benutzernamen enthält, falls der Benutzer angemeldet ist.
+*/
+app.get('/api/auth/status', (req, res) => {
+  if (req.session.userId) {
+    res.json({ authenticated: true, username: req.session.username });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+// Server starten
+app.listen(port, () => {
+  console.log(`✅ Server läuft auf http://localhost:${port}`);
+  console.log(`✅ Umgebungsvariablen geladen: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
+});
+
+// Graceful shutdown handling
+process.on('SIGINT', () => {
+  console.log('🔄 Server wird beendet...');
+  pool.end(() => {
+    console.log('✅ Datenbankverbindung geschlossen');
+    process.exit(0);
+  });
+});
+</code></pre>
         </article>
     </section>
 
@@ -307,7 +415,7 @@ startServer();</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jun 27 2025 11:54:36 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jul 25 2025 10:45:45 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

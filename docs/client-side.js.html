@@ -34,6 +34,124 @@
  * @namespace ClientSideFunctions
  * @description Enthält Funktionen zum Laden von Klausuren und Lösungen, Hochladen von Dateien und Initialisieren der Seite.
  */
+
+// Authentifizierungs-Variablen
+let isAuthenticated = false;
+let currentUser = null;
+
+/**
+ * @async
+ * @function checkAuthStatus
+ * @memberof ClientSideFunctions
+ * @description Überprüft den aktuellen Authentifizierungsstatus beim Server
+ * @returns {Promise&lt;void>}
+ */
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/status');
+        const data = await response.json();
+
+        isAuthenticated = data.authenticated;
+        currentUser = data.username;
+
+        updateUIForAuthStatus();
+    } catch (error) {
+        console.error('Fehler beim Überprüfen des Auth-Status:', error);
+    }
+}
+
+/**
+ * @function updateUIForAuthStatus
+ * @memberof ClientSideFunctions
+ * @description Aktualisiert die UI basierend auf dem Authentifizierungsstatus
+ */
+function updateUIForAuthStatus() {
+    const loginNavItem = document.getElementById('login-nav-item');
+    const logoutNavItem = document.getElementById('logout-nav-item');
+    const uploadSection = document.getElementById('upload-section');
+
+    if (isAuthenticated) {
+        loginNavItem.classList.add('d-none');
+        logoutNavItem.classList.remove('d-none');
+        uploadSection.classList.remove('d-none');
+
+        // Logout-Button Text aktualisieren
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.innerHTML = `&lt;i class="bi bi-box-arrow-right">&lt;/i> Logout (${currentUser})`;
+    } else {
+        loginNavItem.classList.remove('d-none');
+        logoutNavItem.classList.add('d-none');
+        uploadSection.classList.add('d-none');
+    }
+}
+
+/**
+ * @function setupLoginSystem
+ * @memberof ClientSideFunctions
+ * @description Initialisiert das Login-System mit Event-Listeners
+ */
+function setupLoginSystem() {
+    const loginForm = document.getElementById('login-form');
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+
+    // Login-Form Handler
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(loginForm);
+        const username = formData.get('username');
+        const password = formData.get('password');
+        const statusDiv = document.getElementById('login-status');
+
+        try {
+            statusDiv.innerHTML = '&lt;div class="alert alert-info">Anmeldung läuft...&lt;/div>';
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                statusDiv.innerHTML = '&lt;div class="alert alert-success">Login erfolgreich!&lt;/div>';
+
+                // Modal schließen und UI aktualisieren
+                setTimeout(() => {
+                    loginModal.hide();
+                    loginForm.reset();
+                    statusDiv.innerHTML = '';
+                    checkAuthStatus();
+                }, 1000);
+            } else {
+                statusDiv.innerHTML = `&lt;div class="alert alert-danger">Fehler: ${data.message}&lt;/div>`;
+            }
+        } catch (error) {
+            console.error('Login-Fehler:', error);
+            statusDiv.innerHTML = '&lt;div class="alert alert-danger">Netzwerkfehler beim Login&lt;/div>';
+        }
+    });
+
+    // Logout-Button Handler
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                checkAuthStatus();
+            }
+        } catch (error) {
+            console.error('Logout-Fehler:', error);
+        }
+    });
+}
+
 /**
  * @async
  * @function loadExamsForSemester
@@ -49,13 +167,13 @@ async function loadExamsForSemester(semester) {
         const exams = await response.json();
 
         const container = document.getElementById(`semester${semester}`);
-        const examCard = container.querySelector('.exam-card');
+        const examCard = container.querySelector('.exam-card .card-body');
 
         // Clear existing content
-        examCard.innerHTML = `&lt;h3>Klausuren für Semester ${semester}&lt;/h3>`;
+        examCard.innerHTML = '';
 
         if (exams.length === 0) {
-            examCard.innerHTML += `&lt;p>Keine Klausuren verfügbar&lt;/p>`;
+            examCard.innerHTML = '&lt;p class="text-muted">Keine Klausuren verfügbar&lt;/p>';
             return;
         }
 
@@ -71,11 +189,16 @@ async function loadExamsForSemester(semester) {
         // Create HTML for each subject
         Object.keys(examsBySubject).forEach(subject => {
             const subjectSection = document.createElement('div');
+            subjectSection.className = 'mb-3';
             subjectSection.innerHTML = `
-                &lt;h4>${subject}&lt;/h4>
-                &lt;ul>
+                &lt;h5 class="text-primary">${subject}&lt;/h5>
+                &lt;ul class="list-group list-group-flush">
                     ${examsBySubject[subject].map(exam =>
-                `&lt;li>&lt;a href="/klausuren/${exam.id}/pdf">${exam.name}&lt;/a>&lt;/li>`
+                `&lt;li class="list-group-item">
+                            &lt;a href="/klausuren/${exam.id}/pdf" class="text-decoration-none">
+                                &lt;i class="bi bi-file-earmark-pdf">&lt;/i> ${exam.name}
+                            &lt;/a>
+                        &lt;/li>`
             ).join('')}
                 &lt;/ul>
             `;
@@ -85,8 +208,8 @@ async function loadExamsForSemester(semester) {
     } catch (error) {
         console.error(`Fehler beim Laden der Klausuren für Semester ${semester}:`, error);
         const container = document.getElementById(`semester${semester}`);
-        const examCard = container.querySelector('.exam-card');
-        examCard.innerHTML = '&lt;p>Fehler beim Laden der Klausuren&lt;/p>';
+        const examCard = container.querySelector('.exam-card .card-body');
+        examCard.innerHTML = '&lt;p class="text-danger">Fehler beim Laden der Klausuren&lt;/p>';
     }
 }
 
@@ -105,13 +228,13 @@ async function loadSolutionsForSemester(semester) {
         const solutions = await response.json();
 
         const container = document.getElementById(`semester${semester}`);
-        const solutionCard = container.querySelector('.solution-card');
+        const solutionCard = container.querySelector('.solution-card .card-body');
 
         // Clear existing content
-        solutionCard.innerHTML = `&lt;h3>Lösungen für Semester ${semester}&lt;/h3>`;
+        solutionCard.innerHTML = '';
 
         if (solutions.length === 0) {
-            solutionCard.innerHTML += '&lt;p>Keine Lösungen verfügbar&lt;/p>';
+            solutionCard.innerHTML = '&lt;p class="text-muted">Keine Lösungen verfügbar&lt;/p>';
             return;
         }
 
@@ -127,11 +250,16 @@ async function loadSolutionsForSemester(semester) {
         // Create HTML for each subject
         Object.keys(solutionsBySubject).forEach(subject => {
             const subjectSection = document.createElement('div');
+            subjectSection.className = 'mb-3';
             subjectSection.innerHTML = `
-                &lt;h4>${subject}&lt;/h4>
-                &lt;ul>
+                &lt;h5 class="text-success">${subject}&lt;/h5>
+                &lt;ul class="list-group list-group-flush">
                     ${solutionsBySubject[subject].map(solution =>
-                `&lt;li>&lt;a href="/loesungen/${solution.id}/pdf">${solution.name}&lt;/a>&lt;/li>`
+                `&lt;li class="list-group-item">
+                            &lt;a href="/loesungen/${solution.id}/pdf" class="text-decoration-none">
+                                &lt;i class="bi bi-file-earmark-check">&lt;/i> ${solution.name}
+                            &lt;/a>
+                        &lt;/li>`
             ).join('')}
                 &lt;/ul>
             `;
@@ -141,8 +269,8 @@ async function loadSolutionsForSemester(semester) {
     } catch (error) {
         console.error(`Fehler beim Laden der Lösungen für Semester ${semester}:`, error);
         const container = document.getElementById(`semester${semester}`);
-        const solutionCard = container.querySelector('.solution-card');
-        solutionCard.innerHTML = '&lt;p>Fehler beim Laden der Lösungen&lt;/p>';
+        const solutionCard = container.querySelector('.solution-card .card-body');
+        solutionCard.innerHTML = '&lt;p class="text-danger">Fehler beim Laden der Lösungen&lt;/p>';
     }
 }
 
@@ -194,7 +322,8 @@ async function uploadExamAndSolution() {
         try {
             // Disable button and show loading state
             uploadButton.disabled = true;
-            statusDiv.innerHTML = '&lt;p>Uploading...&lt;/p>';
+            uploadButton.innerHTML = '&lt;span class="spinner-border spinner-border-sm me-2">&lt;/span>Uploading...';
+            statusDiv.innerHTML = '&lt;div class="alert alert-info">Uploading...&lt;/div>';
 
             const response = await fetch('/api/upload', {
                 method: 'POST',
@@ -207,7 +336,7 @@ async function uploadExamAndSolution() {
             }
 
             await response.json(); // Process the response without storing it
-            statusDiv.innerHTML = '&lt;p class="success">Upload successful!&lt;/p>';
+            statusDiv.innerHTML = '&lt;div class="alert alert-success">Upload successful!&lt;/div>';
 
             // Reload the exams and solutions to show the new uploads
             await loadAllExams();
@@ -217,11 +346,237 @@ async function uploadExamAndSolution() {
             form.reset();
         } catch (error) {
             console.error('Error uploading:', error);
-            statusDiv.innerHTML = `&lt;p class="error">Error: ${error.message}&lt;/p>`;
+            statusDiv.innerHTML = `&lt;div class="alert alert-danger">Error: ${error.message}&lt;/div>`;
         } finally {
             uploadButton.disabled = false;
+            uploadButton.innerHTML = 'Hochladen';
         }
     });
+}
+
+/**
+ * @function setupDragAndDrop
+ * @memberof ClientSideFunctions
+ * @description Initialisiert die Drag-and-Drop-Funktionalität für Datei-Upload
+ */
+function setupDragAndDrop() {
+    const klausurDropArea = document.getElementById('klausurDropArea');
+    const loesungDropArea = document.getElementById('loesungDropArea');
+    const klausurInput = document.getElementById('klausurInput');
+    const loesungInput = document.getElementById('loesungInput');
+
+    // Setup für Klausur Drop Area
+    setupDropArea(klausurDropArea, klausurInput, 'klausurFileDisplay');
+
+    // Setup für Lösung Drop Area
+    setupDropArea(loesungDropArea, loesungInput, 'loesungFileDisplay');
+}
+
+/**
+ * @function setupDropArea
+ * @memberof ClientSideFunctions
+ * @description Richtet eine Drop-Area für eine bestimmte Datei-Input ein
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ * @param {HTMLInputElement} fileInput - Das zugehörige File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function setupDropArea(dropArea, fileInput, displayId) {
+    // Drag Events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight Drop Area
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => highlight(dropArea), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => unhighlight(dropArea), false);
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener('drop', (e) => handleDrop(e, fileInput, displayId), false);
+
+    // Handle file input change
+    fileInput.addEventListener('change', () => handleFileSelect(fileInput, displayId));
+
+    // Click to select file
+    dropArea.addEventListener('click', () => fileInput.click());
+}
+
+/**
+ * @function preventDefaults
+ * @memberof ClientSideFunctions
+ * @description Verhindert Standard-Browser-Verhalten für Drag-Events
+ * @param {Event} e - Das Event
+ */
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+/**
+ * @function highlight
+ * @memberof ClientSideFunctions
+ * @description Hebt die Drop-Area hervor
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ */
+function highlight(dropArea) {
+    dropArea.classList.add('drag-over');
+}
+
+/**
+ * @function unhighlight
+ * @memberof ClientSideFunctions
+ * @description Entfernt die Hervorhebung der Drop-Area
+ * @param {HTMLElement} dropArea - Die Drop-Area
+ */
+function unhighlight(dropArea) {
+    dropArea.classList.remove('drag-over');
+}
+
+/**
+ * @function handleDrop
+ * @memberof ClientSideFunctions
+ * @description Verarbeitet abgelegte Dateien
+ * @param {DragEvent} e - Das Drop-Event
+ * @param {HTMLInputElement} fileInput - Das zugehörige File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function handleDrop(e, fileInput, displayId) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length > 0) {
+        const file = files[0];
+
+        // Datei-Validierung
+        if (validateFile(file)) {
+            // DataTransfer für das Input-Element erstellen
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+
+            // Datei-Anzeige aktualisieren
+            displayFile(file, displayId);
+        }
+    }
+}
+
+/**
+ * @function handleFileSelect
+ * @memberof ClientSideFunctions
+ * @description Verarbeitet ausgewählte Dateien über Input-Element
+ * @param {HTMLInputElement} fileInput - Das File-Input
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function handleFileSelect(fileInput, displayId) {
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        displayFile(file, displayId);
+    }
+}
+
+/**
+ * @function validateFile
+ * @memberof ClientSideFunctions
+ * @description Validiert eine Datei
+ * @param {File} file - Die zu validierende Datei
+ * @returns {boolean} - True wenn die Datei gültig ist
+ */
+function validateFile(file) {
+    const allowedTypes = ['application/pdf', 'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (!allowedTypes.includes(file.type)) {
+        alert('Nur PDF-, DOC-, DOCX- und TXT-Dateien sind erlaubt.');
+        return false;
+    }
+
+    if (file.size > maxSize) {
+        alert('Die Datei ist zu groß. Maximale Größe: 10MB.');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @function displayFile
+ * @memberof ClientSideFunctions
+ * @description Zeigt die ausgewählte Datei an
+ * @param {File} file - Die anzuzeigende Datei
+ * @param {string} displayId - ID des Elements für die Datei-Anzeige
+ */
+function displayFile(file, displayId) {
+    const displayElement = document.getElementById(displayId);
+    const fileSize = formatFileSize(file.size);
+    const fileName = file.name;
+    const fileIcon = getFileIcon(file.type, fileName);
+
+    displayElement.innerHTML = `
+        &lt;div class="file-display">
+            &lt;div class="file-info">
+                &lt;i class="${fileIcon}">&lt;/i>
+                &lt;span class="file-name">${fileName}&lt;/span>
+                &lt;span class="file-size">(${fileSize})&lt;/span>
+            &lt;/div>
+            &lt;button type="button" class="remove-file" onclick="removeFile('${displayId}', '${displayId.replace('FileDisplay', 'Input')}')">
+                &lt;i class="bi bi-x-circle-fill">&lt;/i>
+            &lt;/button>
+        &lt;/div>
+    `;
+}
+
+/**
+ * @function getFileIcon
+ * @memberof ClientSideFunctions
+ * @description Gibt das passende Icon für den Dateityp zurück
+ * @param {string} fileType - MIME-Type der Datei
+ * @param {string} fileName - Name der Datei
+ * @returns {string} - CSS-Klassen für das Icon
+ */
+function getFileIcon(fileType, fileName) {
+    if (fileType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
+        return 'bi bi-file-earmark-pdf-fill text-danger';
+    } else if (fileType.includes('word') || fileName.toLowerCase().endsWith('.doc') || fileName.toLowerCase().endsWith('.docx')) {
+        return 'bi bi-file-earmark-word-fill text-primary';
+    } else if (fileType === 'text/plain' || fileName.toLowerCase().endsWith('.txt')) {
+        return 'bi bi-file-earmark-text-fill text-secondary';
+    } else {
+        return 'bi bi-file-earmark-fill text-info';
+    }
+}
+
+/**
+ * @function formatFileSize
+ * @memberof ClientSideFunctions
+ * @description Formatiert Dateigröße in lesbares Format
+ * @param {number} bytes - Dateigröße in Bytes
+ * @returns {string} - Formatierte Dateigröße
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * @function removeFile
+ * @memberof ClientSideFunctions
+ * @description Entfernt eine ausgewählte Datei
+ * @param {string} displayId - ID des Display-Elements
+ * @param {string} inputId - ID des Input-Elements
+ */
+function removeFile(displayId, inputId) {
+    document.getElementById(displayId).innerHTML = '';
+    document.getElementById(inputId).value = '';
 }
 
 // Event listener für DOMContentLoaded
@@ -230,7 +585,13 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllExams();
     loadAllSolutions();
     uploadExamAndSolution();
-});</code></pre>
+    checkAuthStatus();
+    setupLoginSystem();
+    setupDragAndDrop();
+});
+
+// Globale Funktionen für HTML onclick
+window.removeFile = removeFile;</code></pre>
         </article>
     </section>
 
@@ -246,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jun 27 2025 11:54:36 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jul 25 2025 10:45:45 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

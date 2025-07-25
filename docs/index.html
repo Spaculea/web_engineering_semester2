@@ -42,6 +42,370 @@
 
 
 
+    <section>
+        <article><h1>🎓 DHBW Stuttgart - Altklausuren Archiv Informatik</h1>
+<p>Ein modernes Web-Archiv für alte Klausuren und Lösungen der DHBW Stuttgart, entwickelt im Rahmen der Prüfungsleistung für Web Engineering.</p>
+<p><img src="src/logo%20DHBW.svg" alt="DHBW Logo"></p>
+<h2>📋 Inhaltsverzeichnis</h2>
+<ul>
+<li><a href="#%C3%BCber-das-projekt">Über das Projekt</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#technologien">Technologien</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#verwendung">Verwendung</a></li>
+<li><a href="#api-dokumentation">API-Dokumentation</a></li>
+<li><a href="#projektstruktur">Projektstruktur</a></li>
+<li><a href="#konfiguration">Konfiguration</a></li>
+<li><a href="#entwicklung">Entwicklung</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#beitragen">Beitragen</a></li>
+<li><a href="#lizenz">Lizenz</a></li>
+</ul>
+<h2>🎯 Über das Projekt</h2>
+<p>Das DHBW Altklausuren-Archiv ist eine vollständige Web-Anwendung zur Verwaltung und Bereitstellung von Klausuren und Lösungen für Informatik-Studierende. Die Anwendung bietet eine moderne, responsive Benutzeroberfläche mit Bootstrap und ein sicheres Login-System für das Hochladen neuer Inhalte.</p>
+<h3>Ziele</h3>
+<ul>
+<li>Zentrale Sammlung aller Altklausuren nach Semestern</li>
+<li>Einfacher Zugang zu Lösungen</li>
+<li>Sichere Upload-Funktionalität für Administratoren</li>
+<li>Responsive Design für alle Geräte</li>
+<li>Moderne Web-Technologien</li>
+</ul>
+<h2>✨ Features</h2>
+<h3>🔍 <strong>Browsing &amp; Download</strong></h3>
+<ul>
+<li><strong>Semester-basierte Navigation</strong>: Klausuren nach Semestern 1-6 organisiert</li>
+<li><strong>PDF-Download</strong>: Direkter Download von Klausuren und Lösungen</li>
+<li><strong>Responsive Design</strong>: Optimiert für Desktop, Tablet und Mobile</li>
+<li><strong>Suchfreundlich</strong>: Übersichtliche Darstellung aller verfügbaren Inhalte</li>
+</ul>
+<h3>🔐 <strong>Authentifizierung &amp; Sicherheit</strong></h3>
+<ul>
+<li><strong>Modal-basiertes Login</strong>: Elegante Bootstrap-Modal für Anmeldung</li>
+<li><strong>Session-Management</strong>: Sichere Server-Sessions mit Express-Session</li>
+<li><strong>Passwort-Hashing</strong>: bcrypt für sichere Passwortspeicherung</li>
+<li><strong>Geschützte Routen</strong>: Upload nur für authentifizierte Benutzer</li>
+</ul>
+<h3>📤 <strong>Upload-System</strong></h3>
+<ul>
+<li><strong>Drag &amp; Drop Interface</strong>: Moderne Datei-Upload mit Drag-and-Drop</li>
+<li><strong>Multi-Format Support</strong>: PDF, DOC, DOCX, TXT-Dateien</li>
+<li><strong>Datei-Validierung</strong>: Automatische Überprüfung von Typ und Größe</li>
+<li><strong>Live-Vorschau</strong>: Sofortige Anzeige ausgewählter Dateien</li>
+<li><strong>Batch-Upload</strong>: Gleichzeitiges Hochladen von Klausur und Lösung</li>
+</ul>
+<h3>🎨 <strong>Benutzeroberfläche</strong></h3>
+<ul>
+<li><strong>Bootstrap 5.3.0</strong>: Moderne, responsive UI-Komponenten</li>
+<li><strong>Card-basierte Layouts</strong>: Übersichtliche Darstellung von Inhalten</li>
+<li><strong>Bootstrap Icons</strong>: Konsistente Iconographie</li>
+<li><strong>Animationen</strong>: Sanfte Übergänge und Hover-Effekte</li>
+<li><strong>Accessibility</strong>: Barrierefreie Bedienung</li>
+</ul>
+<h2>🛠 Technologien</h2>
+<h3>Frontend</h3>
+<ul>
+<li><strong>HTML5</strong> - Semantische Markup-Struktur</li>
+<li><strong>CSS3</strong> - Moderne Styling-Features</li>
+<li><strong>Bootstrap 5.3.0</strong> - Responsive CSS-Framework</li>
+<li><strong>Bootstrap Icons</strong> - Icon-Bibliothek</li>
+<li><strong>Vanilla JavaScript</strong> - Client-seitige Logik</li>
+<li><strong>Drag &amp; Drop API</strong> - Native Browser-APIs</li>
+</ul>
+<h3>Backend</h3>
+<ul>
+<li><strong>Node.js</strong> - JavaScript-Runtime</li>
+<li><strong>Express.js</strong> - Web-Framework</li>
+<li><strong>PostgreSQL</strong> - Relationale Datenbank</li>
+<li><strong>bcrypt</strong> - Passwort-Hashing</li>
+<li><strong>express-session</strong> - Session-Management</li>
+<li><strong>multer</strong> - Datei-Upload-Middleware</li>
+<li><strong>dotenv</strong> - Umgebungsvariablen</li>
+</ul>
+<h3>Development &amp; Deployment</h3>
+<ul>
+<li><strong>Docker &amp; Docker Compose</strong> - Containerisierung</li>
+<li><strong>JSDoc</strong> - API-Dokumentation</li>
+<li><strong>Nodemon</strong> - Development-Server</li>
+<li><strong>Git</strong> - Versionskontrolle</li>
+</ul>
+<h2>🚀 Installation</h2>
+<h3>Voraussetzungen</h3>
+<ul>
+<li>Node.js (v16 oder höher)</li>
+<li>Docker &amp; Docker Compose</li>
+<li>Git</li>
+</ul>
+<h3>Schritt-für-Schritt-Installation</h3>
+<ol>
+<li><strong>Repository klonen</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>git clone https://github.com/Spaculea/web_engineering_semester2.git
+cd web_engineering_semester2
+</code></pre>
+<ol start="2">
+<li><strong>Dependencies installieren</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>npm install
+</code></pre>
+<ol start="3">
+<li><strong>Umgebungsvariablen konfigurieren</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code># .env Datei ist bereits konfiguriert mit:
+DB_HOST=localhost
+DB_PORT=5400
+DB_USER=postgres
+DB_PASSWORD=sese20022003
+DB_NAME=dhbw_klausuren
+</code></pre>
+<ol start="4">
+<li><strong>Datenbank starten und initialisieren</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>npm run db:reset
+</code></pre>
+<ol start="5">
+<li><strong>Admin-Benutzer erstellen</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>node create-admin-user.js
+</code></pre>
+<ol start="6">
+<li><strong>Server starten</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>npm start
+</code></pre>
+<p>Die Anwendung ist nun unter <code>http://localhost:3000</code> verfügbar.</p>
+<h2>💻 Verwendung</h2>
+<h3>🌐 <strong>Für Studierende (Öffentlicher Zugang)</strong></h3>
+<ol>
+<li><strong>Website besuchen</strong>: <code>http://localhost:3000</code></li>
+<li><strong>Semester auswählen</strong>: Navigation verwenden (1.-6. Semester)</li>
+<li><strong>Klausuren durchsuchen</strong>: Verfügbare Klausuren und Lösungen ansehen</li>
+<li><strong>Download</strong>: Direkt auf gewünschte PDF-Dateien klicken</li>
+</ol>
+<h3>👨‍💼 <strong>Für Administratoren (Upload)</strong></h3>
+<ol>
+<li>
+<p><strong>Login</strong>: Auf &quot;Login&quot; in der Navigation klicken</p>
+<ul>
+<li><strong>Benutzername</strong>: <code>admin</code></li>
+<li><strong>Passwort</strong>: <code>admin123</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Upload-Bereich</strong>: Nach Login wird Upload-Sektion sichtbar</p>
+</li>
+<li>
+<p><strong>Datei hochladen</strong>:</p>
+<ul>
+<li><strong>Drag &amp; Drop</strong>: Dateien direkt in gestrichelte Bereiche ziehen</li>
+<li><strong>Klick-Upload</strong>: Auf &quot;Datei auswählen&quot; klicken</li>
+<li><strong>Formular ausfüllen</strong>: Name, Fach, Semester angeben</li>
+<li><strong>Upload</strong>: Button &quot;Hochladen&quot; klicken</li>
+</ul>
+</li>
+<li>
+<p><strong>Logout</strong>: &quot;Logout&quot; in der Navigation</p>
+</li>
+</ol>
+<h2>📚 API-Dokumentation</h2>
+<h3>Authentifizierung</h3>
+<pre class="prettyprint source lang-http"><code>POST /api/login
+Content-Type: application/json
+
+{
+  &quot;username&quot;: &quot;admin&quot;,
+  &quot;password&quot;: &quot;admin123&quot;
+}
+</code></pre>
+<pre class="prettyprint source lang-http"><code>POST /api/logout
+</code></pre>
+<pre class="prettyprint source lang-http"><code>GET /api/auth/status
+</code></pre>
+<h3>Klausuren &amp; Lösungen</h3>
+<pre class="prettyprint source lang-http"><code>GET /api/exams/:semester
+# Gibt alle Klausuren für ein Semester zurück
+</code></pre>
+<pre class="prettyprint source lang-http"><code>GET /api/solutions/:semester
+# Gibt alle Lösungen für ein Semester zurück
+</code></pre>
+<pre class="prettyprint source lang-http"><code>GET /klausuren/:id/pdf
+# Download einer Klausur-PDF
+</code></pre>
+<pre class="prettyprint source lang-http"><code>GET /loesungen/:id/pdf
+# Download einer Lösungs-PDF
+</code></pre>
+<h3>Upload (Authentifizierung erforderlich)</h3>
+<pre class="prettyprint source lang-http"><code>POST /api/upload
+Content-Type: multipart/form-data
+
+# FormData mit:
+# - name: String
+# - fach: String
+# - semester: String
+# - klausur: File
+# - loesung: File (optional)
+</code></pre>
+<p>Vollständige API-Dokumentation: <code>npm run docs</code> → <code>docs/index.html</code></p>
+<h2>📁 Projektstruktur</h2>
+<pre class="prettyprint source"><code>Projekt/
+├── src/                          # Quellcode
+│   ├── homePage.html            # Haupt-HTML-Datei
+│   ├── server.js                # Express-Server
+│   ├── client-side.js           # Frontend-JavaScript
+│   ├── styles.css               # Basis-Styles
+│   ├── styles-bootstrap.css     # Bootstrap-Anpassungen
+│   ├── drag-drop-styles.css     # Drag-Drop-Styles
+│   ├── logo DHBW.svg           # DHBW-Logo
+│   ├── assets/                  # Statische Assets
+│   │   ├── Klausuren/          # PDF-Klausuren
+│   │   └── Loesungen/          # PDF-Lösungen
+│   └── db/                     # Datenbank
+│       └── initialization.js   # DB-Setup-Skript
+├── docs/                       # JSDoc-Dokumentation
+├── docker-compose.yaml         # Docker-Services
+├── Dockerfile                  # Docker-Image
+├── package.json               # Node.js-Konfiguration
+├── jsdoc.json                 # JSDoc-Konfiguration
+├── .env                       # Umgebungsvariablen
+├── init.sql                   # SQL-Schema
+├── create-admin-user.js       # Admin-User-Skript
+├── test-login.js              # Login-Test-Skript
+├── generate-admin.js          # Admin-Generator
+└── README.md                  # Diese Datei
+</code></pre>
+<h2>⚙️ Konfiguration</h2>
+<h3>Umgebungsvariablen (.env)</h3>
+<pre class="prettyprint source lang-env"><code># Datenbank
+DB_HOST=localhost
+DB_PORT=5400
+DB_USER=postgres
+DB_PASSWORD=sese20022003
+DB_NAME=dhbw_klausuren
+
+# Server
+PORT=3000
+NODE_ENV=development
+</code></pre>
+<h3>Docker-Services</h3>
+<ul>
+<li><strong>PostgreSQL</strong>: Port 5400</li>
+<li><strong>Node.js App</strong>: Port 3000</li>
+<li><strong>Persistent Volume</strong>: <code>postgres_data</code></li>
+</ul>
+<h2>🔧 Entwicklung</h2>
+<h3>Verfügbare Scripts</h3>
+<pre class="prettyprint source lang-bash"><code># Development
+npm run dev              # Startet Server mit Nodemon
+npm start               # Produktions-Server
+
+# Datenbank
+npm run db:start        # PostgreSQL-Container starten
+npm run db:stop         # Container stoppen
+npm run db:reset        # Datenbank zurücksetzen + neu initialisieren
+npm run db:init         # Nur Datenbank initialisieren
+
+# Dokumentation
+npm run docs            # JSDoc generieren
+npm run docs:watch      # JSDoc mit Watch-Mode
+npm run docs:serve      # Docs generieren + HTTP-Server
+
+# Utils
+npm run generate-admin  # Admin-User generieren
+</code></pre>
+<h3>Development-Workflow</h3>
+<ol>
+<li><strong>Code ändern</strong> in <code>src/</code></li>
+<li><strong>Server automatisch neu starten</strong> (mit <code>npm run dev</code>)</li>
+<li><strong>Browser aktualisieren</strong> → <code>http://localhost:3000</code></li>
+<li><strong>Tests laufen lassen</strong>: <code>node test-login.js</code></li>
+<li><strong>Dokumentation aktualisieren</strong>: <code>npm run docs</code></li>
+</ol>
+<h3>Database-Schema</h3>
+<pre class="prettyprint source lang-sql"><code>-- Klausuren-Tabelle
+CREATE TABLE klausuren (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    fach VARCHAR(100) NOT NULL,
+    semester VARCHAR(10) NOT NULL,
+    klausur_pdf BYTEA NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Lösungen-Tabelle
+CREATE TABLE loesungen (
+    id SERIAL PRIMARY KEY,
+    klausur_id INTEGER REFERENCES klausuren(id),
+    loesung_pdf BYTEA NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Benutzer-Tabelle
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+<h2>🚀 Deployment</h2>
+<h3>Docker Deployment</h3>
+<ol>
+<li><strong>Image erstellen</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>docker build -t dhbw-klausuren-archiv .
+</code></pre>
+<ol start="2">
+<li><strong>Mit Docker Compose starten</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code>docker-compose up -d
+</code></pre>
+<h3>Produktionsserver</h3>
+<ol>
+<li><strong>Umgebungsvariablen anpassen</strong></li>
+</ol>
+<pre class="prettyprint source lang-bash"><code># Produktions-.env
+NODE_ENV=production
+DB_PASSWORD=&lt;sicheres-passwort>
+SESSION_SECRET=&lt;sicherer-schlüssel>
+</code></pre>
+<ol start="2">
+<li><strong>HTTPS konfigurieren</strong> (nginx/Apache)</li>
+<li><strong>Backup-Strategie</strong> für PostgreSQL einrichten</li>
+<li><strong>Monitoring</strong> einrichten (PM2, etc.)</li>
+</ol>
+<h2>🤝 Beitragen</h2>
+<ol>
+<li><strong>Fork</strong> das Repository</li>
+<li><strong>Feature Branch</strong> erstellen: <code>git checkout -b feature/AmazingFeature</code></li>
+<li><strong>Änderungen committen</strong>: <code>git commit -m 'Add some AmazingFeature'</code></li>
+<li><strong>Branch pushen</strong>: <code>git push origin feature/AmazingFeature</code></li>
+<li><strong>Pull Request</strong> öffnen</li>
+</ol>
+<h3>Code-Style</h3>
+<ul>
+<li><strong>JavaScript</strong>: Standard-Style mit JSDoc-Kommentaren</li>
+<li><strong>HTML</strong>: Semantische Tags, Bootstrap-Klassen</li>
+<li><strong>CSS</strong>: BEM-Methodology wo möglich</li>
+<li><strong>Commits</strong>: Conventional Commits Format</li>
+</ul>
+<h2>📄 Lizenz</h2>
+<p>Dieses Projekt wurde für die DHBW Stuttgart als Prüfungsleistung entwickelt.</p>
+<p><strong>Autor</strong>: Sergiu Paculea<br>
+<strong>Studiengang</strong>: Informatik<br>
+<strong>Semester</strong>: 2. Semester<br>
+<strong>Fach</strong>: Web Engineering<br>
+<strong>Jahr</strong>: 2025</p>
+<hr>
+<h2>🆘 Support &amp; Kontakt</h2>
+<p>Bei Fragen oder Problemen:</p>
+<ol>
+<li><strong>Issues</strong>: GitHub Issues für Bug-Reports</li>
+<li><strong>Documentation</strong>: JSDoc-Docs unter <code>/docs</code></li>
+<li><strong>Code-Review</strong>: Pull Requests willkommen</li>
+</ol>
+<hr></article>
+    </section>
+
 
 
 
@@ -359,7 +723,7 @@ und fügt die Daten in die entsprechenden Tabellen ein.</p></div>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jun 27 2025 11:54:36 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jul 25 2025 10:45:45 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
