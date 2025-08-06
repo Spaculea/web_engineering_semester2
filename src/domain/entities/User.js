@@ -1,20 +1,20 @@
 /**
- * @fileoverview User domain entity
+ * @fileoverview User (Benutzer) Domain-Entität
  * @author Sergiu Paculea
  */
 
 /**
- * User entity representing a user in the system
+ * User-Entität die einen Benutzer im System repräsentiert
  * @class
  */
 class User {
     /**
-     * Create a User
-     * @param {Object} data - User data
-     * @param {number} [data.id] - The user ID
-     * @param {string} data.username - The username
-     * @param {string} [data.password_hash] - The password hash
-     * @param {Date} [data.created_at] - Creation timestamp
+     * Einen User erstellen
+     * @param {Object} data - User-Daten
+     * @param {number} [data.id] - Die Benutzer-ID
+     * @param {string} data.username - Der Benutzername
+     * @param {string} [data.password_hash] - Der Passwort-Hash
+     * @param {Date} [data.created_at] - Erstellungszeitstempel
      */
     constructor(data) {
         this.id = data.id;
@@ -24,16 +24,16 @@ class User {
     }
 
     /**
-     * Validate if the user has required fields
-     * @returns {boolean} True if valid
+     * Prüfen ob der User die erforderlichen Felder hat
+     * @returns {boolean} True wenn gültig
      */
     isValid() {
         return !!(this.username);
     }
 
     /**
-     * Get user data without sensitive information
-     * @returns {Object} Public user data
+     * Benutzerdaten ohne sensible Informationen abrufen
+     * @returns {Object} Öffentliche Benutzerdaten
      */
     getPublicData() {
         return {

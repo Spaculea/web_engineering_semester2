@@ -4,44 +4,44 @@
  */
 
 /**
- * Interface for Loesung repository operations
+ * Interface für Loesung Repository Operationen
  * @interface
  */
 class LoesungRepositoryPort {
     /**
-     * Find loesungen by semester (via klausur relationship)
-     * @param {string} semester - The semester to search for
-     * @returns {Promise<Array>} Array of loesungen with klausur info
+     * Loesungen nach Semester finden (über Klausur-Beziehung)
+     * @param {string} semester - Das zu suchende Semester
+     * @returns {Promise<Array>} Array von Loesungen mit Klausur-Info
      */
     async findBySemester(semester) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Find loesung by ID
-     * @param {number} id - The loesung ID
-     * @returns {Promise<Object|null>} Loesung object or null if not found
+     * Loesung nach ID finden
+     * @param {number} id - Die Loesung-ID
+     * @returns {Promise<Object|null>} Loesung-Objekt oder null wenn nicht gefunden
      */
     async findById(id) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Create a new loesung
-     * @param {Object} loesungData - The loesung data
-     * @returns {Promise<number>} The created loesung ID
+     * Neue Loesung erstellen
+     * @param {Object} loesungData - Die Loesung-Daten
+     * @returns {Promise<number>} Die erstellte Loesung-ID
      */
     async create(loesungData) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Get loesung PDF by ID
-     * @param {number} id - The loesung ID
-     * @returns {Promise<Object|null>} Object with PDF data and klausur name, or null
+     * Loesung-PDF nach ID abrufen
+     * @param {number} id - Die Loesung-ID
+     * @returns {Promise<Object|null>} Objekt mit PDF-Daten und Klausur-Name, oder null
      */
     async getPdfById(id) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 }
 

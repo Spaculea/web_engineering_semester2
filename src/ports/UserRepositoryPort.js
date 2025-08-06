@@ -4,35 +4,35 @@
  */
 
 /**
- * Interface for User repository operations
+ * Interface für User Repository Operationen
  * @interface
  */
 class UserRepositoryPort {
     /**
-     * Find user by username
-     * @param {string} username - The username to search for
-     * @returns {Promise<Object|null>} User object or null if not found
+     * Benutzer nach Benutzername finden
+     * @param {string} username - Der zu suchende Benutzername
+     * @returns {Promise<Object|null>} User-Objekt oder null wenn nicht gefunden
      */
     async findByUsername(username) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Find user by ID
-     * @param {number} id - The user ID
-     * @returns {Promise<Object|null>} User object or null if not found
+     * Benutzer nach ID finden
+     * @param {number} id - Die Benutzer-ID
+     * @returns {Promise<Object|null>} User-Objekt oder null wenn nicht gefunden
      */
     async findById(id) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Create a new user
-     * @param {Object} userData - The user data
-     * @returns {Promise<number>} The created user ID
+     * Neuen Benutzer erstellen
+     * @param {Object} userData - Die Benutzerdaten
+     * @returns {Promise<number>} Die erstellte Benutzer-ID
      */
     async create(userData) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 }
 

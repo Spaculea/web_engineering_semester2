@@ -1,20 +1,20 @@
 /**
- * @fileoverview Loesung (Solution) domain entity
+ * @fileoverview Loesung (Lösung) Domain-Entität
  * @author Sergiu Paculea
  */
 
 /**
- * Loesung entity representing a solution in the system
+ * Loesung-Entität die eine Lösung im System repräsentiert
  * @class
  */
 class Loesung {
     /**
-     * Create a Loesung
-     * @param {Object} data - Loesung data
-     * @param {number} [data.id] - The loesung ID
-     * @param {number} data.klausur_id - The associated klausur ID
-     * @param {Buffer} [data.loesung_pdf] - The PDF data
-     * @param {Date} [data.created_at] - Creation timestamp
+     * Eine Loesung erstellen
+     * @param {Object} data - Loesung-Daten
+     * @param {number} [data.id] - Die Loesung-ID
+     * @param {number} data.klausur_id - Die zugehörige Klausur-ID
+     * @param {Buffer} [data.loesung_pdf] - Die PDF-Daten
+     * @param {Date} [data.created_at] - Erstellungszeitstempel
      */
     constructor(data) {
         this.id = data.id;
@@ -24,16 +24,16 @@ class Loesung {
     }
 
     /**
-     * Validate if the loesung has required fields
-     * @returns {boolean} True if valid
+     * Prüfen ob die Loesung die erforderlichen Felder hat
+     * @returns {boolean} True wenn gültig
      */
     isValid() {
         return !!(this.klausur_id);
     }
 
     /**
-     * Get loesung metadata without PDF data
-     * @returns {Object} Loesung metadata
+     * Loesung-Metadaten ohne PDF-Daten abrufen
+     * @returns {Object} Loesung-Metadaten
      */
     getMetadata() {
         return {

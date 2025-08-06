@@ -1,30 +1,30 @@
 /**
- * @fileoverview Authentication Service Port Interface
+ * @fileoverview Authentifizierungsservice Port Interface
  * @author Sergiu Paculea
  */
 
 /**
- * Interface for authentication operations
+ * Interface für Authentifizierungsoperationen
  * @interface
  */
 class AuthServicePort {
     /**
-     * Hash a password
-     * @param {string} password - The plain text password
-     * @returns {Promise<string>} The hashed password
+     * Passwort hashen
+     * @param {string} password - Das Klartext-Passwort
+     * @returns {Promise<string>} Das gehashte Passwort
      */
     async hashPassword(password) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Compare password with hash
-     * @param {string} password - The plain text password
-     * @param {string} hash - The password hash
-     * @returns {Promise<boolean>} True if password matches hash
+     * Passwort mit Hash vergleichen
+     * @param {string} password - Das Klartext-Passwort
+     * @param {string} hash - Der Passwort-Hash
+     * @returns {Promise<boolean>} True wenn Passwort mit Hash übereinstimmt
      */
     async comparePassword(password, hash) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 }
 

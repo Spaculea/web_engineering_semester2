@@ -6,7 +6,7 @@
 const KlausurRepositoryPort = require('../../ports/KlausurRepositoryPort');
 
 /**
- * PostgreSQL implementation of KlausurRepositoryPort
+ * PostgreSQL-Implementierung des KlausurRepositoryPort
  * @class
  * @extends KlausurRepositoryPort
  */

@@ -4,44 +4,44 @@
  */
 
 /**
- * Interface for Klausur repository operations
+ * Interface für Klausur Repository Operationen
  * @interface
  */
 class KlausurRepositoryPort {
     /**
-     * Find klausuren by semester
-     * @param {string} semester - The semester to search for
-     * @returns {Promise<Array>} Array of klausuren
+     * Klausuren nach Semester finden
+     * @param {string} semester - Das zu suchende Semester
+     * @returns {Promise<Array>} Array von Klausuren
      */
     async findBySemester(semester) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Find klausur by ID
-     * @param {number} id - The klausur ID
-     * @returns {Promise<Object|null>} Klausur object or null if not found
+     * Klausur nach ID finden
+     * @param {number} id - Die Klausur-ID
+     * @returns {Promise<Object|null>} Klausur-Objekt oder null wenn nicht gefunden
      */
     async findById(id) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Create a new klausur
-     * @param {Object} klausurData - The klausur data
-     * @returns {Promise<number>} The created klausur ID
+     * Neue Klausur erstellen
+     * @param {Object} klausurData - Die Klausur-Daten
+     * @returns {Promise<number>} Die erstellte Klausur-ID
      */
     async create(klausurData) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 
     /**
-     * Get klausur PDF by ID
-     * @param {number} id - The klausur ID
-     * @returns {Promise<Object|null>} Object with PDF data and name, or null
+     * Klausur-PDF nach ID abrufen
+     * @param {number} id - Die Klausur-ID
+     * @returns {Promise<Object|null>} Objekt mit PDF-Daten und Name, oder null
      */
     async getPdfById(id) {
-        throw new Error('Method must be implemented by adapter');
+        throw new Error('Methode muss vom Adapter implementiert werden');
     }
 }
 

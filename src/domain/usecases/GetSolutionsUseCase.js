@@ -1,34 +1,34 @@
 /**
- * @fileoverview Get Solutions Use Case
+ * @fileoverview Lösungen abrufen Use Case
  * @author Sergiu Paculea
  */
 
 /**
- * Use case for retrieving solutions by semester
+ * Use Case zum Abrufen von Lösungen nach Semester
  * @class
  */
 class GetSolutionsUseCase {
     /**
-     * Create GetSolutionsUseCase
-     * @param {LoesungRepositoryPort} loesungRepository - Loesung repository
+     * GetSolutionsUseCase erstellen
+     * @param {LoesungRepositoryPort} loesungRepository - Loesung Repository
      */
     constructor(loesungRepository) {
         this.loesungRepository = loesungRepository;
     }
 
     /**
-     * Execute the use case
-     * @param {string} semester - The semester to get solutions for
-     * @returns {Promise<Array>} Array of solution metadata with klausur info
+     * Use Case ausführen
+     * @param {string} semester - Das Semester für das Lösungen abgerufen werden sollen
+     * @returns {Promise<Array>} Array mit Lösungs-Metadaten inklusive Klausur-Info
      */
     async execute(semester) {
         if (!semester) {
-            throw new Error('Semester is required');
+            throw new Error('Semester ist erforderlich');
         }
 
         const loesungen = await this.loesungRepository.findBySemester(semester);
         
-        // Return metadata with klausur information
+        // Metadaten mit Klausur-Informationen zurückgeben
         return loesungen.map(loesung => ({
             id: loesung.id,
             name: loesung.name,

@@ -1,29 +1,29 @@
 /**
- * @fileoverview Get Exam PDF Use Case
+ * @fileoverview Klausur PDF abrufen Use Case
  * @author Sergiu Paculea
  */
 
 /**
- * Use case for retrieving exam PDF
+ * Use Case zum Abrufen von Klausur-PDFs
  * @class
  */
 class GetExamPdfUseCase {
     /**
-     * Create GetExamPdfUseCase
-     * @param {KlausurRepositoryPort} klausurRepository - Klausur repository
+     * GetExamPdfUseCase erstellen
+     * @param {KlausurRepositoryPort} klausurRepository - Klausur Repository
      */
     constructor(klausurRepository) {
         this.klausurRepository = klausurRepository;
     }
 
     /**
-     * Execute the use case
-     * @param {number} examId - The exam ID
-     * @returns {Promise<Object>} PDF data and filename
+     * Use Case ausführen
+     * @param {number} examId - Die Klausur-ID
+     * @returns {Promise<Object>} PDF-Daten und Dateiname
      */
     async execute(examId) {
         if (!examId) {
-            throw new Error('Exam ID is required');
+            throw new Error('Klausur-ID ist erforderlich');
         }
 
         const pdfData = await this.klausurRepository.getPdfById(examId);

@@ -1,34 +1,34 @@
 /**
- * @fileoverview Get Exams Use Case
+ * @fileoverview Klausuren abrufen Use Case
  * @author Sergiu Paculea
  */
 
 /**
- * Use case for retrieving exams by semester
+ * Use Case zum Abrufen von Klausuren nach Semester
  * @class
  */
 class GetExamsUseCase {
     /**
-     * Create GetExamsUseCase
-     * @param {KlausurRepositoryPort} klausurRepository - Klausur repository
+     * GetExamsUseCase erstellen
+     * @param {KlausurRepositoryPort} klausurRepository - Klausur Repository
      */
     constructor(klausurRepository) {
         this.klausurRepository = klausurRepository;
     }
 
     /**
-     * Execute the use case
-     * @param {string} semester - The semester to get exams for
-     * @returns {Promise<Array>} Array of exam metadata
+     * Use Case ausführen
+     * @param {string} semester - Das Semester für das Klausuren abgerufen werden sollen
+     * @returns {Promise<Array>} Array mit Klausur-Metadaten
      */
     async execute(semester) {
         if (!semester) {
-            throw new Error('Semester is required');
+            throw new Error('Semester ist erforderlich');
         }
 
         const klausuren = await this.klausurRepository.findBySemester(semester);
         
-        // Return metadata only (no PDF data)
+        // Nur Metadaten zurückgeben (keine PDF-Daten)
         return klausuren.map(klausur => ({
             id: klausur.id,
             name: klausur.name,

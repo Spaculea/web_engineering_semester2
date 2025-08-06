@@ -1,13 +1,13 @@
 /**
- * @fileoverview Express API Routes for Klausur operations
+ * @fileoverview Express API Routes für Klausur-Operationen
  * @author Sergiu Paculea
  */
 
 /**
- * Creates Express routes for klausur operations
- * @param {GetExamsUseCase} getExamsUseCase - Use case for getting exams
- * @param {GetExamPdfUseCase} getExamPdfUseCase - Use case for getting exam PDFs
- * @returns {Object} Express router
+ * Erstellt Express-Routen für Klausur-Operationen
+ * @param {GetExamsUseCase} getExamsUseCase - Use Case zum Abrufen von Klausuren
+ * @param {GetExamPdfUseCase} getExamPdfUseCase - Use Case zum Abrufen von Klausur-PDFs
+ * @returns {Object} Express Router
  */
 function createKlausurRoutes(getExamsUseCase, getExamPdfUseCase) {
     const express = require('express');
@@ -15,7 +15,7 @@ function createKlausurRoutes(getExamsUseCase, getExamPdfUseCase) {
 
     /**
      * GET /api/exams/:semester
-     * Get all exams for a specific semester
+     * Alle Klausuren für ein bestimmtes Semester abrufen
      */
     router.get('/api/exams/:semester', async (req, res) => {
         try {
@@ -29,7 +29,7 @@ function createKlausurRoutes(getExamsUseCase, getExamPdfUseCase) {
 
     /**
      * GET /klausuren/:id/pdf
-     * Get PDF document for a specific exam
+     * PDF-Dokument für eine bestimmte Klausur abrufen
      */
     router.get('/klausuren/:id/pdf', async (req, res) => {
         try {

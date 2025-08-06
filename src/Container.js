@@ -1,5 +1,5 @@
 /**
- * @fileoverview Application Dependency Container
+ * @fileoverview Anwendungs-Abhängigkeitscontainer
  * @author Sergiu Paculea
  */
 
@@ -20,7 +20,7 @@ const PostgreSQLUserRepository = require('./adapters/db/PostgreSQLUserRepository
 const BcryptAuthService = require('./adapters/db/BcryptAuthService');
 
 /**
- * Application dependency container
+ * Anwendungs-Abhängigkeitscontainer
  * @class
  */
 class Container {
@@ -29,21 +29,21 @@ class Container {
     }
 
     /**
-     * Initialize the container with database connection
-     * @param {Object} dbConfig - Database configuration
+     * Container mit Datenbankverbindung initialisieren
+     * @param {Object} dbConfig - Datenbankkonfiguration
      */
     initialize(dbConfig) {
-        // Create database connection pool
+        // Datenbank-Verbindungspool erstellen
         const pool = new Pool(dbConfig);
         this.dependencies.pool = pool;
 
-        // Create repositories (adapters)
+        // Repositories erstellen (Adapters)
         this.dependencies.klausurRepository = new PostgreSQLKlausurRepository(pool);
         this.dependencies.loesungRepository = new PostgreSQLLoesungRepository(pool);
         this.dependencies.userRepository = new PostgreSQLUserRepository(pool);
         this.dependencies.authService = new BcryptAuthService();
 
-        // Create use cases (domain layer)
+        // Use Cases erstellen (Domain Layer)
         this.dependencies.getExamsUseCase = new GetExamsUseCase(
             this.dependencies.klausurRepository
         );
@@ -72,19 +72,19 @@ class Container {
     }
 
     /**
-     * Get a dependency by name
-     * @param {string} name - Dependency name
-     * @returns {*} The dependency
+     * Abhängigkeit nach Name abrufen
+     * @param {string} name - Name der Abhängigkeit
+     * @returns {*} Die Abhängigkeit
      */
     get(name) {
         if (!this.dependencies[name]) {
-            throw new Error(`Dependency '${name}' not found`);
+            throw new Error(`Abhängigkeit '${name}' wurde nicht gefunden`);
         }
         return this.dependencies[name];
     }
 
     /**
-     * Clean up resources
+     * Ressourcen bereinigen
      */
     async cleanup() {
         if (this.dependencies.pool) {

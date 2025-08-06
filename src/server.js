@@ -1,5 +1,5 @@
 /**
- * @fileoverview Refactored Server using Hexagonal Architecture
+ * @fileoverview Refaktorierter Server mit Hexagonaler Architektur
  * @author Sergiu Paculea
  */
 
@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const Container = require('./Container');
 
-// API Route Handlers
+// API Route Handler
 const createKlausurRoutes = require('./adapters/api/klausurRoutes');
 const createLoesungRoutes = require('./adapters/api/loesungRoutes');
 const createAuthRoutes = require('./adapters/api/authRoutes');
@@ -19,10 +19,10 @@ const { createUploadRoutes } = require('./adapters/api/uploadRoutes');
 const app = express();
 const port = 3000;
 
-// Initialize dependency container
+// Dependency Container initialisieren
 const container = new Container();
 
-// Database configuration
+// Datenbankkonfiguration
 const dbConfig = {
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -31,29 +31,29 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT, 10) || 5400,
 };
 
-// Initialize container with dependencies
+// Container mit Abhängigkeiten initialisieren
 container.initialize(dbConfig);
 
-// Session middleware
+// Session Middleware
 app.use(session({
   secret: 'dhbw-altklausuren-secret-key-2025',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: false,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000 // 24 Stunden
   }
 }));
 
-// Middleware for JSON parsing
+// Middleware für JSON-Parsing
 app.use(express.json());
 
-// Serve static files
+// Statische Dateien bereitstellen
 app.use(express.static(path.join(__dirname)));
 
 /**
- * Test database connection
- * @returns {Promise<boolean>} True if connection successful
+ * Datenbankverbindung testen
+ * @returns {Promise<boolean>} True wenn Verbindung erfolgreich
  */
 async function testDatabaseConnection() {
   try {
@@ -61,7 +61,7 @@ async function testDatabaseConnection() {
     const client = await pool.connect();
     console.log('✅ Database connected successfully');
 
-    // Test query to check if klausuren table exists
+    // Testabfrage um zu prüfen ob klausuren-Tabelle existiert
     let result = await client.query("SELECT COUNT(*) FROM klausuren");
     console.log(`📊 Klausuren table has ${result.rows[0].count} records`);
 
@@ -78,14 +78,14 @@ async function testDatabaseConnection() {
 }
 
 /**
- * Start the server
+ * Server starten
  */
 async function startServer() {
   console.log('🚀 Starting server...');
 
   const dbConnected = await testDatabaseConnection();
 
-  // Setup API routes using hexagonal architecture
+  // API-Routen mit hexagonaler Architektur einrichten
   app.use(createKlausurRoutes(
     container.get('getExamsUseCase'),
     container.get('getExamPdfUseCase')
@@ -104,7 +104,7 @@ async function startServer() {
     container.get('uploadExamUseCase')
   ));
 
-  // Homepage route
+  // Homepage-Route
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "homePage.html"));
   });
@@ -118,7 +118,7 @@ async function startServer() {
   });
 }
 
-// Graceful shutdown handling
+// Graceful Shutdown Handling
 process.on('SIGINT', async () => {
   console.log('🔄 Server wird beendet...');
   await container.cleanup();
@@ -126,7 +126,7 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// Start the application
+// Anwendung starten
 startServer().catch(error => {
   console.error('❌ Failed to start server:', error);
   process.exit(1);

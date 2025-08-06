@@ -1,29 +1,29 @@
 /**
- * @fileoverview Get Solution PDF Use Case
+ * @fileoverview Lösungs-PDF abrufen Use Case
  * @author Sergiu Paculea
  */
 
 /**
- * Use case for retrieving solution PDF
+ * Use Case zum Abrufen von Lösungs-PDFs
  * @class
  */
 class GetSolutionPdfUseCase {
     /**
-     * Create GetSolutionPdfUseCase
-     * @param {LoesungRepositoryPort} loesungRepository - Loesung repository
+     * GetSolutionPdfUseCase erstellen
+     * @param {LoesungRepositoryPort} loesungRepository - Loesung Repository
      */
     constructor(loesungRepository) {
         this.loesungRepository = loesungRepository;
     }
 
     /**
-     * Execute the use case
-     * @param {number} solutionId - The solution ID
-     * @returns {Promise<Object>} PDF data and filename
+     * Use Case ausführen
+     * @param {number} solutionId - Die Lösungs-ID
+     * @returns {Promise<Object>} PDF-Daten und Dateiname
      */
     async execute(solutionId) {
         if (!solutionId) {
-            throw new Error('Solution ID is required');
+            throw new Error('Lösungs-ID ist erforderlich');
         }
 
         const pdfData = await this.loesungRepository.getPdfById(solutionId);

@@ -1,12 +1,12 @@
 /**
- * @fileoverview Express API Routes for Authentication operations
+ * @fileoverview Express API Routes für Authentifizierungsoperationen
  * @author Sergiu Paculea
  */
 
 /**
- * Creates Express routes for authentication operations
- * @param {AuthenticateUserUseCase} authenticateUserUseCase - Use case for user authentication
- * @returns {Object} Express router
+ * Erstellt Express-Routen für Authentifizierungsoperationen
+ * @param {AuthenticateUserUseCase} authenticateUserUseCase - Use Case für Benutzerauthentifizierung
+ * @returns {Object} Express Router
  */
 function createAuthRoutes(authenticateUserUseCase) {
     const express = require('express');

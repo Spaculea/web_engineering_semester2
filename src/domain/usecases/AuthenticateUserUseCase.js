@@ -1,17 +1,17 @@
 /**
- * @fileoverview Authenticate User Use Case
+ * @fileoverview Benutzer authentifizieren Use Case
  * @author Sergiu Paculea
  */
 
 /**
- * Use case for user authentication
+ * Use Case für Benutzerauthentifizierung
  * @class
  */
 class AuthenticateUserUseCase {
     /**
-     * Create AuthenticateUserUseCase
-     * @param {UserRepositoryPort} userRepository - User repository
-     * @param {AuthServicePort} authService - Authentication service
+     * AuthenticateUserUseCase erstellen
+     * @param {UserRepositoryPort} userRepository - User Repository
+     * @param {AuthServicePort} authService - Authentifizierungsservice
      */
     constructor(userRepository, authService) {
         this.userRepository = userRepository;
@@ -19,11 +19,11 @@ class AuthenticateUserUseCase {
     }
 
     /**
-     * Execute the use case
-     * @param {Object} credentials - User credentials
-     * @param {string} credentials.username - Username
-     * @param {string} credentials.password - Password
-     * @returns {Promise<Object>} Authentication result
+     * Use Case ausführen
+     * @param {Object} credentials - Benutzeranmeldedaten
+     * @param {string} credentials.username - Benutzername
+     * @param {string} credentials.password - Passwort
+     * @returns {Promise<Object>} Authentifizierungsergebnis
      */
     async execute(credentials) {
         const { username, password } = credentials;
@@ -32,21 +32,21 @@ class AuthenticateUserUseCase {
             throw new Error('Benutzername und Passwort sind erforderlich');
         }
 
-        // Find user by username
+        // Benutzer nach Benutzername suchen
         const user = await this.userRepository.findByUsername(username);
         
         if (!user) {
             throw new Error('Ungültiger Benutzername oder Passwort');
         }
 
-        // Verify password
+        // Passwort überprüfen
         const isValidPassword = await this.authService.comparePassword(password, user.password_hash);
         
         if (!isValidPassword) {
             throw new Error('Ungültiger Benutzername oder Passwort');
         }
 
-        // Return user info (without sensitive data)
+        // Benutzerinformationen zurückgeben (ohne sensible Daten)
         return {
             success: true,
             message: 'Login erfolgreich',

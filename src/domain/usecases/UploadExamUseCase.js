@@ -1,5 +1,5 @@
 /**
- * @fileoverview Upload Exam Use Case
+ * @fileoverview Klausur hochladen Use Case
  * @author Sergiu Paculea
  */
 
@@ -7,14 +7,14 @@ const Klausur = require('../entities/Klausur');
 const Loesung = require('../entities/Loesung');
 
 /**
- * Use case for uploading exam and solution files
+ * Use Case zum Hochladen von Klausur- und Lösungsdateien
  * @class
  */
 class UploadExamUseCase {
     /**
-     * Create UploadExamUseCase
-     * @param {KlausurRepositoryPort} klausurRepository - Klausur repository
-     * @param {LoesungRepositoryPort} loesungRepository - Loesung repository
+     * UploadExamUseCase erstellen
+     * @param {KlausurRepositoryPort} klausurRepository - Klausur Repository
+     * @param {LoesungRepositoryPort} loesungRepository - Loesung Repository
      */
     constructor(klausurRepository, loesungRepository) {
         this.klausurRepository = klausurRepository;
@@ -22,24 +22,24 @@ class UploadExamUseCase {
     }
 
     /**
-     * Execute the use case
-     * @param {Object} uploadData - The upload data
-     * @param {string} uploadData.name - Exam name
-     * @param {string} uploadData.fach - Subject
+     * Use Case ausführen
+     * @param {Object} uploadData - Die Upload-Daten
+     * @param {string} uploadData.name - Klausurname
+     * @param {string} uploadData.fach - Fach
      * @param {string} uploadData.semester - Semester
-     * @param {Buffer} uploadData.klausurPDF - Exam PDF data
-     * @param {Buffer} [uploadData.loesungPDF] - Solution PDF data (optional)
-     * @returns {Promise<Object>} Upload result with IDs
+     * @param {Buffer} uploadData.klausurPDF - Klausur-PDF-Daten
+     * @param {Buffer} [uploadData.loesungPDF] - Lösungs-PDF-Daten (optional)
+     * @returns {Promise<Object>} Upload-Ergebnis mit IDs
      */
     async execute(uploadData) {
         const { name, fach, semester, klausurPDF, loesungPDF } = uploadData;
 
-        // Validate required fields
+        // Erforderliche Felder validieren
         if (!name || !fach || !semester || !klausurPDF) {
             throw new Error('Name, Fach, Semester und Klausur-PDF sind erforderlich');
         }
 
-        // Create klausur entity
+        // Klausur-Entität erstellen
         const klausur = new Klausur({
             name,
             fach,
@@ -51,7 +51,7 @@ class UploadExamUseCase {
             throw new Error('Ungültige Klausur-Daten');
         }
 
-        // Save klausur
+        // Klausur speichern
         const klausurId = await this.klausurRepository.create({
             name: klausur.name,
             fach: klausur.fach,
@@ -61,7 +61,7 @@ class UploadExamUseCase {
 
         let loesungId = null;
 
-        // Save solution if provided
+        // Lösung speichern falls bereitgestellt
         if (loesungPDF) {
             const loesung = new Loesung({
                 klausur_id: klausurId,
