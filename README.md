@@ -46,7 +46,7 @@ Das DHBW Altklausuren-Archiv ist eine vollständige Web-Anwendung zur Verwaltung
 
 ### 📤 **Upload-System**
 - **Drag & Drop Interface**: Moderne Datei-Upload mit Drag-and-Drop
-- **Multi-Format Support**: PDF, DOC, DOCX, TXT-Dateien
+- **PDF-Only Support**: Ausschließlich PDF-Dateien werden unterstützt
 - **Datei-Validierung**: Automatische Überprüfung von Typ und Größe
 - **Live-Vorschau**: Sofortige Anzeige ausgewählter Dateien
 - **Batch-Upload**: Gleichzeitiges Hochladen von Klausur und Lösung
@@ -92,10 +92,14 @@ Das DHBW Altklausuren-Archiv ist eine vollständige Web-Anwendung zur Verwaltung
 
 ### Schritt-für-Schritt-Installation
 
-1. **Repository klonen**
+1. **Repository klonen (Optional)**
 ```bash
+# Option 1: Repository klonen
 git clone https://github.com/Spaculea/web_engineering_semester2.git
 cd web_engineering_semester2
+
+# Option 2: Projekt-Ordner direkt verwenden (empfohlen)
+# Verwenden Sie den vorhandenen Projekt-Ordner
 ```
 
 2. **Dependencies installieren**
@@ -105,13 +109,16 @@ npm install
 
 3. **Umgebungsvariablen konfigurieren**
 ```bash
-# .env Datei ist bereits konfiguriert mit:
+# .env Datei muss im src/ Ordner erstellt werden:
+# src/.env mit folgendem Inhalt:
 DB_HOST=localhost
 DB_PORT=5400
 DB_USER=postgres
 DB_PASSWORD=postgrePassword
 DB_NAME=dhbw_klausuren
 ```
+
+**Wichtig**: Erstellen Sie eine neue Datei `src/.env` mit den oben genannten Umgebungsvariablen.
 
 4. **Datenbank starten und initialisieren (mit Admin-Benutzer)**
 ```bash
@@ -238,7 +245,7 @@ Projekt/
 ├── Dockerfile                  # Docker-Image
 ├── package.json               # Node.js-Konfiguration
 ├── jsdoc.json                 # JSDoc-Konfiguration
-├── .env                       # Umgebungsvariablen
+├── src/.env                   # Umgebungsvariablen (muss erstellt werden)
 ├── init.sql                   # SQL-Schema
 ├── create-admin-user.js       # Admin-User-Skript
 ├── test-login.js              # Login-Test-Skript
@@ -248,7 +255,7 @@ Projekt/
 
 ## ⚙️ Konfiguration
 
-### Umgebungsvariablen (.env)
+### Umgebungsvariablen (src/.env)
 ```env
 # Datenbank
 DB_HOST=localhost
@@ -261,6 +268,8 @@ DB_NAME=dhbw_klausuren
 PORT=3000
 NODE_ENV=development
 ```
+
+**Wichtig**: Die `.env` Datei muss im `src/` Ordner erstellt werden, nicht im Projekt-Root.
 
 ### Docker-Services
 - **PostgreSQL**: Port 5400
