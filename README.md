@@ -227,31 +227,70 @@ Vollständige API-Dokumentation: `npm run docs` → `docs/index.html`
 
 ```
 Projekt/
-├── src/                          # Quellcode
-│   ├── homePage.html            # Haupt-HTML-Datei
-│   ├── server.js                # Express-Server
-│   ├── client-side.js           # Frontend-JavaScript
-│   ├── styles.css               # Basis-Styles
-│   ├── styles-bootstrap.css     # Bootstrap-Anpassungen
-│   ├── drag-drop-styles.css     # Drag-Drop-Styles
-│   ├── logo DHBW.svg           # DHBW-Logo
-│   ├── assets/                  # Statische Assets
-│   │   ├── Klausuren/          # PDF-Klausuren
-│   │   └── Loesungen/          # PDF-Lösungen
-│   └── db/                     # Datenbank
-│       └── initialization.js   # DB-Setup-Skript
-├── docs/                       # JSDoc-Dokumentation
-├── docker-compose.yaml         # Docker-Services
-├── Dockerfile                  # Docker-Image
-├── package.json               # Node.js-Konfiguration
-├── jsdoc.json                 # JSDoc-Konfiguration
-├── src/.env                   # Umgebungsvariablen (muss erstellt werden)
-├── init.sql                   # SQL-Schema
-├── create-admin-user.js       # Admin-User-Skript
-├── test-login.js              # Login-Test-Skript
-├── generate-admin.js          # Admin-Generator
-└── README.md                  # Diese Datei
+├── src/                                    # Quellcode (Hexagonal Architecture)
+│   ├── homePage.html                      # Haupt-HTML-Datei
+│   ├── server.js                          # Express-Server (refactored)
+│   ├── server-original.js                # Original-Server (Backup)
+│   ├── Container.js                       # Dependency Injection Container
+│   ├── client-side.js                     # Frontend-JavaScript
+│   ├── styles.css                         # Basis-Styles
+│   ├── styles-bootstrap.css               # Bootstrap-Anpassungen
+│   ├── drag-drop-styles.css               # Drag-Drop-Styles
+│   ├── logo DHBW.svg                     # DHBW-Logo
+│   ├── adapters/                          # Adapter Layer (Hexagonal Architecture)
+│   │   ├── api/                          # API-Route-Adapter
+│   │   │   ├── authRoutes.js             # Authentifizierungs-Routen
+│   │   │   ├── klausurRoutes.js          # Klausur-API-Routen
+│   │   │   ├── loesungRoutes.js          # Lösungs-API-Routen
+│   │   │   └── uploadRoutes.js           # Upload-API-Routen
+│   │   └── db/                           # Datenbank-Adapter
+│   │       ├── BcryptAuthService.js       # Authentifizierungsservice
+│   │       ├── PostgreSQLKlausurRepository.js    # Klausur-Repository
+│   │       ├── PostgreSQLLoesungRepository.js    # Lösungs-Repository
+│   │       └── PostgreSQLUserRepository.js       # User-Repository
+│   ├── domain/                            # Domain Layer (Business Logic)
+│   │   ├── entities/                     # Domain-Entitäten
+│   │   │   ├── Klausur.js                # Klausur-Entität
+│   │   │   ├── Loesung.js                # Lösungs-Entität
+│   │   │   └── User.js                   # User-Entität
+│   │   └── usecases/                     # Use Cases (Business Logic)
+│   │       ├── AuthenticateUserUseCase.js       # User-Authentifizierung
+│   │       ├── GetExamPdfUseCase.js              # Klausur-PDF abrufen
+│   │       ├── GetExamsUseCase.js                # Klausuren abrufen
+│   │       ├── GetSolutionPdfUseCase.js          # Lösungs-PDF abrufen
+│   │       ├── GetSolutionsUseCase.js            # Lösungen abrufen
+│   │       └── UploadExamUseCase.js              # Klausur hochladen
+│   ├── ports/                             # Ports (Interfaces)
+│   │   ├── AuthServicePort.js            # Authentifizierungs-Interface
+│   │   ├── KlausurRepositoryPort.js      # Klausur-Repository-Interface
+│   │   ├── LoesungRepositoryPort.js      # Lösungs-Repository-Interface
+│   │   └── UserRepositoryPort.js         # User-Repository-Interface
+│   ├── assets/                           # Statische Assets
+│   │   ├── Klausuren/                    # PDF-Klausuren
+│   │   └── Loesungen/                    # PDF-Lösungen
+│   └── db/                               # Datenbank-Setup
+│       └── initialization.js             # DB-Setup-Skript
+├── docs/                                 # JSDoc-Dokumentation
+│   └── HEXAGONAL_ARCHITECTURE.md        # Architektur-Dokumentation
+├── docker-compose.yaml                   # Docker-Services
+├── Dockerfile                           # Docker-Image
+├── package.json                         # Node.js-Konfiguration
+├── jsdoc.json                           # JSDoc-Konfiguration
+├── .env                                 # Umgebungsvariablen (Root-Level)
+├── src/.env                             # Umgebungsvariablen (muss erstellt werden)
+├── init.sql                             # SQL-Schema
+├── create-admin-user.js                 # Admin-User-Skript
+└── README.md                            # Diese Datei
 ```
+
+### 🏗️ Hexagonal Architecture
+
+Das Projekt folgt der **Hexagonal Architecture** (Ports & Adapters Pattern):
+
+- **Domain Layer**: Geschäftslogik und Entitäten (unabhängig von externen Systemen)
+- **Ports**: Interfaces für externe Abhängigkeiten
+- **Adapters**: Implementierungen der Ports (Datenbank, API, etc.)
+- **Container**: Dependency Injection für lose Kopplung
 
 ## ⚙️ Konfiguration
 
